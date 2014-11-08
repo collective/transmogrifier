@@ -34,6 +34,18 @@ setup(
     zip_safe=False,
     install_requires=[
         'setuptools',
-        'Products.CMFCore',
+        'zope.component',
+        'zope.configuration',
+        'zope.pagetemplate'
     ],
+    extras_require={
+        'CMF': [
+            'Products.CMFCore'  # requires KGS (e.g. from a Plone release)
+        ],
+        'test': [
+             'lxml',
+             'zope.testing',
+             'zope.annotation',
+        ]
+    }
 )

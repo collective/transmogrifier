@@ -6,7 +6,10 @@ import operator
 from zope.interface import classImplements, implements, directlyProvides
 from zope.component import provideUtility, provideAdapter
 from zope.testing import doctest, cleanup
-from Products.Five import zcml
+
+from zope.configuration import xmlconfig
+from zope.configuration.config import ConfigurationMachine
+from zope.configuration.xmlconfig import registerCommonDirectives
 
 import collective.transmogrifier
 from collective.transmogrifier.transmogrifier import configuration_registry
@@ -21,20 +24,25 @@ from collective.transmogrifier.tests import tearDown
 
 class MetaDirectivesTests(unittest.TestCase):
     def setUp(self):
-        zcml.load_config('meta.zcml', collective.transmogrifier)
+        self.context = ConfigurationMachine()
+        registerCommonDirectives(self.context)
+
+        xmlconfig.file('meta.zcml', collective.transmogrifier,
+                       context=self.context)
 
     def tearDown(self):
         configuration_registry.clear()
         cleanup.cleanUp()
 
     def testEmptyZCML(self):
-        zcml.load_string('''\
+        xmlconfig.string('''\
 <configure xmlns:transmogrifier="http://namespaces.plone.org/transmogrifier">
-</configure>''')
+</configure>''', context=self.context)
+        self.context.execute_actions()
         self.assertEqual(configuration_registry.listConfigurationIds(), ())
 
     def testConfigZCML(self):
-        zcml.load_string('''\
+        xmlconfig.string('''\
 <configure
     xmlns:transmogrifier="http://namespaces.plone.org/transmogrifier"
     i18n_domain="collective.transmogrifier">
@@ -44,20 +52,20 @@ class MetaDirectivesTests(unittest.TestCase):
     description="config description"
     configuration="filename.cfg"
     />
-</configure>''')
+</configure>''', context=self.context)
+        self.context.execute_actions()
         self.assertEqual(configuration_registry.listConfigurationIds(),
                          (u'collective.transmogrifier.tests.configname',))
-        path = os.path.split(collective.transmogrifier.__file__)[0]
         self.assertEqual(
             configuration_registry.getConfiguration(
                  u'collective.transmogrifier.tests.configname'),
             dict(id=u'collective.transmogrifier.tests.configname',
                  title=u'config title',
                  description=u'config description',
-                 configuration=os.path.join(path, 'filename.cfg')))
+                 configuration=os.path.join(os.getcwd(), 'filename.cfg')))
 
     def testConfigZCMLDefaults(self):
-        zcml.load_string('''\
+        xmlconfig.string('''\
 <configure
     xmlns:transmogrifier="http://namespaces.plone.org/transmogrifier"
     i18n_domain="collective.transmogrifier">
@@ -65,10 +73,10 @@ class MetaDirectivesTests(unittest.TestCase):
     name="collective.transmogrifier.tests.configname"
     configuration="filename.cfg"
     />
-</configure>''')
+</configure>''', context=self.context)
+        self.context.execute_actions()
         self.assertEqual(configuration_registry.listConfigurationIds(),
                          (u'collective.transmogrifier.tests.configname',))
-        path = os.path.split(collective.transmogrifier.__file__)[0]
         self.assertEqual(
             configuration_registry.getConfiguration(
                 u'collective.transmogrifier.tests.configname'),
@@ -76,7 +84,7 @@ class MetaDirectivesTests(unittest.TestCase):
                  title=u'Pipeline configuration '
                        u"'collective.transmogrifier.tests.configname'",
                  description=u'',
-                 configuration=os.path.join(path, 'filename.cfg')))
+                 configuration=os.path.join(os.getcwd(), 'filename.cfg')))
 
 
 class OptionSubstitutionTests(unittest.TestCase):

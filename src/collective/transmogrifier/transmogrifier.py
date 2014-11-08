@@ -4,8 +4,7 @@ import UserDict
 
 from zope.component import adapts
 from zope.interface import implements
-
-from Products.CMFCore.interfaces import IFolderish
+from zope.interface import Interface
 
 from interfaces import ITransmogrifier
 from utils import resolvePackageReference, constructPipeline
@@ -45,7 +44,7 @@ del addCleanUp
 
 class Transmogrifier(UserDict.DictMixin):
     implements(ITransmogrifier)
-    adapts(IFolderish)
+    adapts(Interface)
     
     def __init__(self, context):
         self.context = context
