@@ -35,4 +35,9 @@
   </class>
 </configure>
 
+  <configure zcml:condition="installed z3c.autoinclude">
+    <include package="z3c.autoinclude" file="meta.zcml" />
+    <includePlugins package="transmogrify" />
+  </configure>
+
 </configure>
