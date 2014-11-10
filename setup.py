@@ -34,6 +34,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'setuptools',
+        'docopt',
         'zope.component',
         'zope.configuration',
         'zope.pagetemplate'
@@ -46,6 +47,11 @@ setup(
              'lxml',
              'zope.testing',
              'zope.annotation',
+        ]
+    },
+    entry_points={
+        'console_scripts': [
+            'transmogrify=collective.transmogrifier:__main__'
         ]
     }
 )
