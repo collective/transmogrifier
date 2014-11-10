@@ -4,6 +4,8 @@
     i18n_domain="collective.transmogrifier"
     >
 
+<include package="zope.component" />
+
 <include package=".sections"/>
 
 <adapter

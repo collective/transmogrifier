@@ -1,6 +1,7 @@
 import re
 import ConfigParser
 import UserDict
+import pkg_resources
 
 from zope.component import adapts
 from zope.interface import implements
@@ -37,9 +38,13 @@ class ConfigurationRegistry(object):
 configuration_registry = ConfigurationRegistry()
 
 # Test cleanup support
-from zope.testing.cleanup import addCleanUp
-addCleanUp(configuration_registry.clear)
-del addCleanUp
+try:
+    pkg_resources.get_distribution('zope.testing')
+    from zope.testing.cleanup import addCleanUp
+    addCleanUp(configuration_registry.clear)
+    del addCleanUp
+except pkg_resources.DistributionNotFound:
+    pass
 
 
 class Transmogrifier(UserDict.DictMixin):
