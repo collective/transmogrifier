@@ -52,7 +52,7 @@ Available blueprints
 {0:s}
 
 Available pipelines
---------------------
+-------------------
 {1:s}
 """.format('\n'.join(sorted(blueprints.keys())),
            '\n'.join(['{0:s}\n    {1:s}: {2:s}'.format(
