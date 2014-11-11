@@ -2,11 +2,25 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:meta="http://namespaces.zope.org/meta">
 
-    <meta:directive
-        namespace="http://namespaces.plone.org/transmogrifier"
-        name="registerConfig"
-        schema=".meta.IRegisterConfigDirective"
-        handler=".meta.registerConfig"
-        />
+  <meta:directive
+      namespace="http://namespaces.plone.org/transmogrifier"
+      name="registerConfig"
+      schema=".meta.IRegisterConfigDirective"
+      handler=".meta.registerConfig"
+      />
+
+  <meta:directive
+      namespace="http://namespaces.plone.org/transmogrifier"
+      name="pipeline"
+      schema=".meta.IPipelineDirective"
+      handler=".meta.pipeline"
+      />
+
+  <meta:directive
+      namespace="http://namespaces.plone.org/transmogrifier"
+      name="blueprint"
+      schema=".meta.IBlueprintDirective"
+      handler=".meta.blueprint"
+      />
 
 </configure>

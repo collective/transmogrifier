@@ -4,10 +4,10 @@ import UserDict
 import pkg_resources
 
 from zope.component import adapts
-from zope.interface import implements
+from zope.interface import implements, provider, implementer
 from zope.interface import Interface
 
-from interfaces import ITransmogrifier
+from interfaces import ITransmogrifier, ISectionBlueprint, ISection
 from utils import resolvePackageReference, constructPipeline
 
 class ConfigurationRegistry(object):
@@ -268,3 +268,17 @@ def _load_config(configuration_id, seen=None, **overrides):
         result.setdefault(section, {}).update(options)
     
     return result
+
+
+@provider(ISectionBlueprint)
+@implementer(ISection)
+class Blueprint(object):
+
+    def __init__(self, transmogrifier, name, options, previous):
+        self.transmogrifier = transmogrifier
+        self.name = name
+        self.options = options
+        self.previous = previous
+
+    def __iter__(self):
+        raise NotImplementedError('__iter__')

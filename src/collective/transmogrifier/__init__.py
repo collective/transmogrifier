@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collective.transmogrifier.transmogrifier import Blueprint
 
 
 def __main__():
