@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Usage: transmogrify <pipeline>
+"""
+Usage: transmogrify <pipeline>
                     [--overrides=<path/to/pipeline/overrides.cfg>]
                     [--context=<path.to.context.factory>]
+       transmogrify --list
 """
 import os
 import ConfigParser
@@ -15,6 +17,7 @@ from zope.configuration.xmlconfig import registerCommonDirectives
 
 import collective.transmogrifier
 from collective.transmogrifier.interfaces import ITransmogrifier
+from collective.transmogrifier.transmogrifier import configuration_registry
 
 
 class DefaultContext(object):
@@ -36,6 +39,11 @@ def __main__():
     xmlconfig.include(config, package=collective.transmogrifier,
                       file='configure.zcml')
     config.execute_actions()
+
+    if arguments.get('--list'):
+        pipelines = configuration_registry.listConfigurationIds()
+        print '\n'.join(pipelines)
+        return
 
     # Load optional overrides
     overrides = {}
