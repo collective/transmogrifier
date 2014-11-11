@@ -3,13 +3,14 @@
                     [--overrides=<path/to/pipeline/overrides.cfg>]
                     [--context=<path.to.context.factory>]
 """
+import os
 import ConfigParser
 import importlib
 import logging
 
 from docopt import docopt
 from zope.configuration import xmlconfig
-from zope.configuration.config import ConfigurationMachine, os
+from zope.configuration.config import ConfigurationMachine
 from zope.configuration.xmlconfig import registerCommonDirectives
 
 import collective.transmogrifier
