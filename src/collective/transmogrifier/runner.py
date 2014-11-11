@@ -11,11 +11,13 @@ import importlib
 import logging
 
 from docopt import docopt
+from zope.component import getUtilitiesFor
 from zope.configuration import xmlconfig
 from zope.configuration.config import ConfigurationMachine
 from zope.configuration.xmlconfig import registerCommonDirectives
 
 import collective.transmogrifier
+from collective.transmogrifier.interfaces import ISectionBlueprint
 from collective.transmogrifier.interfaces import ITransmogrifier
 from collective.transmogrifier.transmogrifier import configuration_registry
 
@@ -41,8 +43,21 @@ def __main__():
     config.execute_actions()
 
     if arguments.get('--list'):
-        pipelines = configuration_registry.listConfigurationIds()
-        print '\n'.join(pipelines)
+        blueprints = dict(getUtilitiesFor(ISectionBlueprint))
+        pipelines = map(configuration_registry.getConfiguration,
+                        configuration_registry.listConfigurationIds())
+        print """
+Available blueprints
+--------------------
+{0:s}
+
+Available pipelines
+--------------------
+{1:s}
+""".format('\n'.join(sorted(blueprints.keys())),
+           '\n'.join(['{0:s}\n    {1:s}: {2:s}'.format(
+                      p['id'], p['title'], p['description'])
+                      for p in pipelines]))
         return
 
     # Load optional overrides
