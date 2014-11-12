@@ -1,4 +1,5 @@
 import re
+import logging
 import ConfigParser
 import UserDict
 import pkg_resources
@@ -9,6 +10,12 @@ from zope.interface import Interface
 
 from interfaces import ITransmogrifier, ISectionBlueprint, ISection
 from utils import resolvePackageReference, constructPipeline
+
+from collective.transmogrifier.expression import HAS_EXPRESSION
+from collective.transmogrifier.expression import Condition
+
+logger = logging.getLogger('collective.transmogrifier')
+
 
 class ConfigurationRegistry(object):
     def __init__(self):
@@ -282,3 +289,23 @@ class Blueprint(object):
 
     def __iter__(self):
         raise NotImplementedError('__iter__')
+
+
+@provider(ISectionBlueprint)
+@implementer(ISection)
+class ConditionalBlueprint(Blueprint):
+
+    def __init__(self, transmogrifier, name, options, previous):
+        super(ConditionalBlueprint, self).__init__(
+            transmogrifier, name, options, previous)
+
+        if HAS_EXPRESSION:
+            self.condition = Condition(
+                options.get('condition', 'python:True'),
+                transmogrifier, name, options
+            )
+        elif options.get('condition'):
+            logger.warning(
+                ('Condition "{0:s}" requires "collective.transmogrifier" with '
+                 '"[condition]" extras.').format(options.get('condition')))
+            self.condition = lambda item, **extras: True

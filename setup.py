@@ -37,16 +37,22 @@ setup(
         'docopt',
         'zope.component',
         'zope.configuration',
-        'zope.pagetemplate'
     ],
     extras_require={
         'CMF': [
             'Products.CMFCore'  # requires KGS (e.g. from a Plone release)
         ],
+        'condition': [
+            'zope.pagetemplate'
+        ],
+        'expression': [
+            'zope.pagetemplate'
+        ],
         'test': [
              'lxml',
              'zope.testing',
              'zope.annotation',
+             'zope.pagetemplate',
         ]
     },
     entry_points={

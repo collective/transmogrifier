@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collective.transmogrifier.transmogrifier import Blueprint
+from collective.transmogrifier.transmogrifier import ConditionalBlueprint
 
 
 def __main__():

@@ -1,6 +1,15 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
-    xmlns:meta="http://namespaces.zope.org/meta">
+    xmlns:meta="http://namespaces.zope.org/meta"
+    xmlns:zcml="http://namespaces.zope.org/zcml">
+
+  <configure zcml:condition="installed zope.pagetemplate">
+    <meta:provides feature="collective.transmogrifier.expression" />
+  </configure>
+
+  <configure zcml:condition="installed zope.app.pagetemplate">
+    <meta:provides feature="collective.transmogrifier.expression" />
+  </configure>
 
   <meta:directive
       namespace="http://namespaces.plone.org/transmogrifier"
