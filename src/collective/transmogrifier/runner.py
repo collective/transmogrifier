@@ -22,10 +22,6 @@ from collective.transmogrifier.interfaces import ITransmogrifier
 from collective.transmogrifier.transmogrifier import configuration_registry
 
 
-class DefaultContext(object):
-    """Default transmogrifier context"""
-
-
 def __main__():
     # Enable logging
     logging.basicConfig(level=logging.INFO)
@@ -76,7 +72,7 @@ Available pipelines
     # Initialize optional context
     context_path = arguments.get('--context')
     if context_path is None:
-        context = DefaultContext
+        context = dict()
     else:
         context_module_path, context_class_name = context_path.rsplit('.', 1)
         context_module = importlib.import_module(context_module_path)
