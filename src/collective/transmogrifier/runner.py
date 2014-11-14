@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Usage: transmogrify <pipeline>
+Usage: transmogrify <pipeline>...
                     [--overrides=<path/to/pipeline/overrides.cfg>]
                     [--context=<path.to.context.factory>]
        transmogrify --list
@@ -79,4 +79,5 @@ Available pipelines
         context = getattr(context_module, context_class_name)()
 
     # Transmogrify
-    ITransmogrifier(context)(arguments.get('<pipeline>'), **overrides)
+    for pipeline in arguments.get('<pipeline>'):
+        ITransmogrifier(context)(pipeline, **overrides)
