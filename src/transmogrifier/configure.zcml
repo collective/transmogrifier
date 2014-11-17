@@ -14,7 +14,7 @@
   <configure zcml:condition="installed z3c.autoinclude">
     <include package="z3c.autoinclude" file="meta.zcml" />
     <includePlugins
-        package="collective.transmogrifier"
+        package="transmogrifier"
         file="configure.zcml"
         />
   </configure>
