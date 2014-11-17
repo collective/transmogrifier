@@ -1,9 +1,12 @@
+# -*- coding: utf-8 -*-
 import zope.interface
 
+
+# noinspection PyMethodParameters
 class ITransmogrifier(zope.interface.Interface):
     """The transmogrifier transforms objects through a pipeline"""
     
-    context = zope.interface.Attribute("The targeted IFolderish context")
+    context = zope.interface.Attribute('The targeted context')
     
     def __call__(self, configuration_id, **overrides):
         """Load and execute the named pipeline configuration
@@ -17,13 +20,14 @@ class ITransmogrifier(zope.interface.Interface):
     def __getitem__(section):
         """Retrieve a section from the pipeline configuration"""
         
-    def keys():
-        """List all sections in the pipeline configuration"""
-        
     def __iter__():
         """Iterate over all the section names in the pipeline configuration"""
 
+    def keys():
+        """List all sections in the pipeline configuration"""
 
+
+# noinspection PyMethodParameters
 class ISectionBlueprint(zope.interface.Interface):
     """Blueprints create pipe sections"""
     
@@ -35,6 +39,8 @@ class ISectionBlueprint(zope.interface.Interface):
         
         """
 
+
+# noinspection PyMethodParameters
 class ISection(zope.interface.Interface):
     """A section in a transmogrifier pipe"""
     

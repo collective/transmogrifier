@@ -1,0 +1,47 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
+    xmlns:transmogrifier="http://namespaces.plone.org/transmogrifier"
+    i18n_domain="transmogrifier">
+
+  <include package="zope.component" />
+
+  <adapter
+      factory=".adapters.Transmogrifier"
+      provides=".interfaces.ITransmogrifier"
+      />
+
+  <configure zcml:condition="installed z3c.autoinclude">
+    <include package="z3c.autoinclude" file="meta.zcml" />
+    <includePlugins
+        package="collective.transmogrifier"
+        file="configure.zcml"
+        />
+  </configure>
+
+  <transmogrifier:blueprint
+      component=".blueprints.EmptyDictionarySection"
+      name="transmogrifier.empty_dictionary"
+      />
+
+  <transmogrifier:blueprint
+      component=".blueprints.FromExpressionSection"
+      name="transmogrifier.from_expression"
+      />
+
+  <transmogrifier:blueprint
+      component=".blueprints.FromCSVSection"
+      name="transmogrifier.from_csv"
+      />
+
+  <transmogrifier:blueprint
+      component=".blueprints.ExpressionSection"
+      name="transmogrifier.expression"
+      />
+
+  <transmogrifier:blueprint
+      component=".blueprints.ToCSVSection"
+      name="transmogrifier.to_csv"
+      />
+
+</configure>

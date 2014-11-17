@@ -1,0 +1,4 @@
+recursive-include src *
+recursive-include docs *
+include *.py *.txt *.rst *.GPL
+global-exclude *.pyc

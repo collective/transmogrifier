@@ -1,7 +1,7 @@
 Pipelines
 =========
 
-To transmogrify, or import and convert non-plone content, you simply define a
+To transmogrify, or import and convert non- content, you simply define a
 pipeline. Pipe sections, the equivalent of parts in a buildout_, are slotted
 together into a processing pipe. To slot sections together, you define a
 configuration file, define named sections, and a main pipeline definition that
@@ -15,14 +15,14 @@ names the sections in order (one section per line):
     ...     section 3
     ...     
     ... [section 1]
-    ... blueprint = collective.transmogrifier.tests.examplesource
+    ... blueprint = transmogrifier.tests.examplesource
     ... size = 5
     ... 
     ... [section 2]
-    ... blueprint = collective.transmogrifier.tests.exampletransform
+    ... blueprint = transmogrifier.tests.exampletransform
     ... 
     ... [section 3]
-    ... blueprint = collective.transmogrifier.tests.exampleconstructor
+    ... blueprint = transmogrifier.tests.exampleconstructor
     ... """
 
 As you can see this is also very similar to how you construct WSGI pipelines
@@ -38,16 +38,16 @@ least the transmogrifier section with an empty pipeline is required:
 Transmogrifier can load these configuration files either by looking them up
 in a registry or by loading them from a python package.
 
-You register transmogrifier configurations using the ``registerConfig``
-directive in the http://namespaces.plone.org/transmogrifier namespace,
+You register transmogrifier configurations using the ``pipeline``
+directive in the http://namespaces..org/transmogrifier namespace,
 together with a name, and optionally a title and description::
 
   <configure
       xmlns="http://namespaces.zope.org/zope"
-      xmlns:transmogrifier="http://namespaces.plone.org/transmogrifier"
-      i18n_domain="collective.transmogrifier">
+      xmlns:transmogrifier="http://namespaces..org/transmogrifier"
+      i18n_domain="transmogrifier">
       
-  <transmogrifier:registerConfig
+  <transmogrifier:pipeline
       name="exampleconfig"
       title="Example pipeline configuration"
       description="This is an example pipeline configuration"
@@ -59,18 +59,18 @@ together with a name, and optionally a title and description::
 You can then tell transmogrifier to load the 'exampleconfig' configuration. To
 load configuration files directly from a python package, name the package and
 the configuration file separated by a colon, such as
-'collective.transmogrifier.tests:exampleconfig.cfg'.
+'transmogrifier.tests:exampleconfig.cfg'.
 
 Registering files with the transmogrifier registry allows other uses, such as
 listing available configurations in a user interface, together with the
 registered description. Loading files directly let's you build reusable
 libraries of configuration files more quickly though.
 
-In this document we'll use the shorthand *registerConfig* to register
+In this document we'll use the shorthand *pipeline* to register
 example configurations:
 
-    >>> registerConfig(u'collective.transmogrifier.tests.exampleconfig', 
-    ...                exampleconfig)
+    >>> registerConfiguration('transmogrifier.tests.exampleconfig',
+    ...                        exampleconfig)
 
 Pipeline sections
 -----------------
@@ -84,11 +84,13 @@ an ISection pipe section. ISections in turn, are iterators implementing the
 
 Here is a simple blueprint, in the form of a class definition:
 
-    >>> from zope.interface import classProvides, implements
-    >>> from zope.component import provideUtility
-    >>> class ExampleTransform(object):
-    ...     classProvides(ISectionBlueprint)
-    ...     implements(ISection)
+    >>> from transmogrifier.interfaces import ISectionBlueprint
+    >>> from transmogrifier.interfaces import ISection
+    >>> from zope.interface import implementer
+    >>> from zope.interface import provider
+    >>> @provider(ISectionBlueprint)
+    ... @implementer(ISection)
+    ... class ExampleTransform(object):
     ...
     ...     def __init__(self, transmogrifier, name, options, previous):
     ...         self.previous = previous
@@ -99,8 +101,9 @@ Here is a simple blueprint, in the form of a class definition:
     ...             item['exampletransformname'] = self.name
     ...             yield item
     ...
+    >>> from zope.component import provideUtility
     >>> provideUtility(ExampleTransform, 
-    ...                name=u'collective.transmogrifier.tests.exampletransform')
+    ...                name='transmogrifier.tests.exampletransform')
 
 Note that we register this class as a named utility, and that instances of
 this class can be used as an iterator. When slotted together, items 'flow'
@@ -122,9 +125,9 @@ This is where special sections, sources, come in. A source is simply a pipe
 section that inserts extra items into the pipeline. This is best illustrated
 with another example:
 
-    >>> class ExampleSource(object):
-    ...     classProvides(ISectionBlueprint)
-    ...     implements(ISection)
+    >>> @provider(ISectionBlueprint)
+    ... @implementer(ISection)
+    ... class ExampleSource(object):
     ...
     ...     def __init__(self, transmogrifier, name, options, previous):
     ...         self.previous = previous
@@ -138,7 +141,7 @@ with another example:
     ...             yield dict(id='item%02d' % i)
     ...
     >>> provideUtility(ExampleSource,
-    ...                name=u'collective.transmogrifier.tests.examplesource')
+    ...                name='transmogrifier.tests.examplesource')
 
 In this example we use the ``options`` dictionary to read options from the
 section configuration, which in the example configuration we gave earlier has
@@ -169,15 +172,15 @@ constructors should always start with yielding the items passed in from the
 previous section on to a possible next section.
 
 So, a constructor section is an ISection that consumes items from the previous
-section, and affects the plone site based on items, usually by creating
+section, and affects the  site based on items, usually by creating
 content objects based on these items, then yield the item for a next section.
 For example purposes, we simply pretty print the items instead:
 
     >>> import pprint
-    >>> class ExampleConstructor(object):
-    ...     classProvides(ISectionBlueprint)
-    ...     implements(ISection)
-    ...     
+    >>> @provider(ISectionBlueprint)
+    ... @implementer(ISection)
+    ... class ExampleConstructor(object):
+    ...
     ...     def __init__(self, transmogrifier, name, options, previous):
     ...         self.previous = previous
     ...         self.pprint = pprint.PrettyPrinter().pprint
@@ -188,14 +191,14 @@ For example purposes, we simply pretty print the items instead:
     ...             yield item
     ...
     >>> provideUtility(ExampleConstructor, 
-    ...                name=u'collective.transmogrifier.tests.exampleconstructor')
+    ...                name='transmogrifier.tests.exampleconstructor')
 
 With this last section blueprint example completed, we can load the example
 configuration we created earlier, and run our transmogrification:
 
-    >>> from collective.transmogrifier.transmogrifier import Transmogrifier
-    >>> transmogrifier = Transmogrifier(plone)
-    >>> transmogrifier(u'collective.transmogrifier.tests.exampleconfig')
+    >>> from transmogrifier import Transmogrifier
+    >>> transmogrifier = Transmogrifier({})
+    >>> transmogrifier('transmogrifier.tests.exampleconfig')
     [('exampletransformname', 'section 2'), ('id', 'item00')]
     [('exampletransformname', 'section 2'), ('id', 'item01')]
     [('exampletransformname', 'section 2'), ('id', 'item02')]
@@ -225,9 +228,9 @@ section options. It is the same mapping as can be had through
 
 A short example shows each of these arguments in action:
 
-    >>> class TitleExampleSection(object):
-    ...     classProvides(ISectionBlueprint)
-    ...     implements(ISection)
+    >>> @provider(ISectionBlueprint)
+    ... @implementer(ISection)
+    ... class TitleExampleSection(object):
     ...
     ...     def __init__(self, transmogrifier, name, options, previous):
     ...         self.transmogrifier = transmogrifier
@@ -247,7 +250,7 @@ A short example shows each of these arguments in action:
     ...             item['title'] = '%s - %s' % (self.site_title, item['id'])
     ...             yield item
     >>> provideUtility(TitleExampleSection, 
-    ...                name=u'collective.transmogrifier.tests.titleexample')
+    ...                name='transmogrifier.tests.titleexample')
     >>> titlepipeline = """\
     ... [transmogrifier]
     ... pipeline =
@@ -256,36 +259,40 @@ A short example shows each of these arguments in action:
     ...     section3
     ...     
     ... [section1]
-    ... blueprint = collective.transmogrifier.tests.examplesource
+    ... blueprint = transmogrifier.tests.examplesource
     ... size = 5
     ... 
     ... [titlesection]
-    ... blueprint = collective.transmogrifier.tests.titleexample
+    ... blueprint = transmogrifier.tests.titleexample
     ... 
     ... [section3]
-    ... blueprint = collective.transmogrifier.tests.exampleconstructor
+    ... blueprint = transmogrifier.tests.exampleconstructor
     ... """
-    >>> registerConfig(u'collective.transmogrifier.tests.titlepipeline', 
-    ...                titlepipeline)
-    >>> plone.Title()
-    u'Plone Test Site'
-    >>> transmogrifier = Transmogrifier(plone)
-    >>> transmogrifier(u'collective.transmogrifier.tests.titlepipeline')
+    >>> registerConfiguration('transmogrifier.tests.titlepipeline',
+    ...                       titlepipeline)
+    >>> class Site(object):
+    ...     def Title(self):
+    ...         return 'Test Site'
+    >>> site = Site()
+    >>> site.Title()
+    'Test Site'
+    >>> transmogrifier = Transmogrifier(site)
+    >>> transmogrifier('transmogrifier.tests.titlepipeline')
     [('id', 'item00'),
      ('pipeline-size', '3'),
-     ('title', u'Plone Test Site - item00')]
+     ('title', 'Test Site - item00')]
     [('id', 'item01'),
      ('pipeline-size', '3'),
-     ('title', u'Plone Test Site - item01')]
+     ('title', 'Test Site - item01')]
     [('id', 'item02'),
      ('pipeline-size', '3'),
-     ('title', u'Plone Test Site - item02')]
+     ('title', 'Test Site - item02')]
     [('id', 'item03'),
      ('pipeline-size', '3'),
-     ('title', u'Plone Test Site - item03')]
+     ('title', 'Test Site - item03')]
     [('id', 'item04'),
      ('pipeline-size', '3'),
-     ('title', u'Plone Test Site - item04')]
+     ('title', 'Test Site - item04')]
 
 Configuration file syntax
 -------------------------
@@ -328,24 +335,24 @@ substitution, using both the section and the option name joined by a colon:
     ... item_count = 3
     ...     
     ... [section1]
-    ... blueprint = collective.transmogrifier.tests.examplesource
+    ... blueprint = transmogrifier.tests.examplesource
     ... size = ${definitions:item_count}
     ... 
     ... [section2]
-    ... blueprint = collective.transmogrifier.tests.exampletransform
+    ... blueprint = transmogrifier.tests.exampletransform
     ... 
     ... [section3]
-    ... blueprint = collective.transmogrifier.tests.exampleconstructor
+    ... blueprint = transmogrifier.tests.exampleconstructor
     ... """
-    >>> registerConfig(u'collective.transmogrifier.tests.substitutionexample', 
+    >>> registerConfiguration('transmogrifier.tests.substitutionexample',
     ...                substitutionexample)
 
     Here we created an extra section called definitions, and refer to the
     item_count option defined in that section to set the size of the section1
     pipeline section, so we only get 3 items when we execute this pipeline:
 
-    >>> transmogrifier = Transmogrifier(plone)
-    >>> transmogrifier(u'collective.transmogrifier.tests.substitutionexample')
+    >>> transmogrifier = Transmogrifier({})
+    >>> transmogrifier('transmogrifier.tests.substitutionexample')
     [('exampletransformname', 'section2'), ('id', 'item00')]
     [('exampletransformname', 'section2'), ('id', 'item01')]
     [('exampletransformname', 'section2'), ('id', 'item02')]
@@ -363,20 +370,20 @@ configuration files are honoured too:
     >>> inclusionexample = """\
     ... [transmogrifier]
     ... include = 
-    ...     collective.transmogrifier.tests.sources
-    ...     collective.transmogrifier.tests.base
+    ...     transmogrifier.tests.sources
+    ...     transmogrifier.tests.base
     ...
     ... [section1]
     ... size = 3
     ... """
-    >>> registerConfig(u'collective.transmogrifier.tests.inclusionexample', 
+    >>> registerConfiguration('transmogrifier.tests.inclusionexample',
     ...                inclusionexample)
     >>> sources = """\
     ... [section1]
-    ... blueprint = collective.transmogrifier.tests.examplesource
+    ... blueprint = transmogrifier.tests.examplesource
     ... size = 10
     ... """
-    >>> registerConfig(u'collective.transmogrifier.tests.sources', 
+    >>> registerConfiguration('transmogrifier.tests.sources',
     ...                sources)
     >>> base = """\
     ... [transmogrifier]
@@ -384,21 +391,21 @@ configuration files are honoured too:
     ...     section1
     ...     section2
     ...     section3
-    ... include = collective.transmogrifier.tests.constructor
+    ... include = transmogrifier.tests.constructor
     ...
     ... [section2]
-    ... blueprint = collective.transmogrifier.tests.exampletransform
+    ... blueprint = transmogrifier.tests.exampletransform
     ... """
-    >>> registerConfig(u'collective.transmogrifier.tests.base', 
+    >>> registerConfiguration('transmogrifier.tests.base',
     ...                base)
     >>> constructor = """\
     ... [section3]
-    ... blueprint = collective.transmogrifier.tests.exampleconstructor
+    ... blueprint = transmogrifier.tests.exampleconstructor
     ... """
-    >>> registerConfig(u'collective.transmogrifier.tests.constructor', 
+    >>> registerConfiguration('transmogrifier.tests.constructor',
     ...                constructor)
-    >>> transmogrifier = Transmogrifier(plone)
-    >>> transmogrifier(u'collective.transmogrifier.tests.inclusionexample')
+    >>> transmogrifier = Transmogrifier({})
+    >>> transmogrifier('transmogrifier.tests.inclusionexample')
     [('exampletransformname', 'section2'), ('id', 'item00')]
     [('exampletransformname', 'section2'), ('id', 'item01')]
     [('exampletransformname', 'section2'), ('id', 'item02')]
@@ -409,7 +416,7 @@ configuration options, by using the += and -= syntax:
     >>> advancedinclusionexample = """\
     ... [transmogrifier]
     ... include = 
-    ...     collective.transmogrifier.tests.inclusionexample
+    ...     transmogrifier.tests.inclusionexample
     ... pipeline -=
     ...     section2
     ...     section3
@@ -418,27 +425,27 @@ configuration options, by using the += and -= syntax:
     ...     section3
     ...
     ... [section4]
-    ... blueprint = collective.transmogrifier.tests.titleexample
+    ... blueprint = transmogrifier.tests.titleexample
     ... """
-    >>> registerConfig(u'collective.transmogrifier.tests.advancedinclusionexample', 
-    ...                advancedinclusionexample)
-    >>> transmogrifier = Transmogrifier(plone)
-    >>> transmogrifier(u'collective.transmogrifier.tests.advancedinclusionexample')
+    >>> registerConfiguration('transmogrifier.tests.advancedinclusionexample',
+    ...                       advancedinclusionexample)
+    >>> transmogrifier = Transmogrifier(site)
+    >>> transmogrifier('transmogrifier.tests.advancedinclusionexample')
     [('id', 'item00'),
      ('pipeline-size', '3'),
-     ('title', u'Plone Test Site - item00')]
+     ('title', 'Test Site - item00')]
     [('id', 'item01'),
      ('pipeline-size', '3'),
-     ('title', u'Plone Test Site - item01')]
+     ('title', 'Test Site - item01')]
     [('id', 'item02'),
      ('pipeline-size', '3'),
-     ('title', u'Plone Test Site - item02')]
+     ('title', 'Test Site - item02')]
 
 When calling transmogrifier, you can provide your own sections too: any extra
 keyword is interpreted as a section dictionary. Do make sure you use string
 values though:
 
-    >>> transmogrifier(u'collective.transmogrifier.tests.inclusionexample',
+    >>> transmogrifier('transmogrifier.tests.inclusionexample',
     ...               section1=dict(size='1'))
     [('exampletransformname', 'section2'), ('id', 'item00')]
 
@@ -513,10 +520,10 @@ the keys ``_acme.transmogrifier.fileloader_imageloader1_filename`` and
 support such targeting should prefer such section specific keys over those
 only using the blueprint name.
 
-The collective.transmogrifier.utils module has a handy utility method called
+The transmogrifier.utils module has a handy utility method called
 ``defaultKeys`` that'll generate these keys for you for easy matching:
 
-    >>> from collective.transmogrifier import utils
+    >>> from transmogrifier import utils
     >>> keys = utils.defaultKeys('acme.transmogrifier.fileloader',
     ...                          'imageloader1', 'filename')
     >>> pprint.pprint(keys)

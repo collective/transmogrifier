@@ -1,96 +1,35 @@
+# -*- coding: utf-8 -*-
 import os.path
-import posixpath
 import re
 import pprint
 
+from six import iteritems
 from zope.component import getUtility
 
-from collective.transmogrifier.interfaces import ISection
-from collective.transmogrifier.interfaces import ISectionBlueprint
+from six.moves import configparser
+from transmogrifier.interfaces import ISection
+from transmogrifier.interfaces import ISectionBlueprint
+from transmogrifier.registry import configuration_registry
 
 
-def openFileReference(transmogrifier, ref):
-    """
-    Get an open file handle in one of the following forms:
-
-    * importcontext:file.txt
-    * dotted.package:file.txt
-    * /file/system/file.txt
-
-    Where "importcontext:" means find the file in the GS import context.
-    Return None if there was no file to be found
-    """
-    if ref.startswith('importcontext:'):
-        try:
-            from collective.transmogrifier.genericsetup import IMPORT_CONTEXT
-            from zope.annotation.interfaces import IAnnotations
-            context = IAnnotations(transmogrifier).get(IMPORT_CONTEXT, None)
-            (subdir, filename) = os.path.split(ref.replace('importcontext:',''))
-            if subdir == '':
-                # Subdir of '' results import contexts looking for a ''
-                # directory I think
-                subdir = None
-            if hasattr(context, "openDataFile"):
-                return context.openDataFile(filename, subdir=subdir)
-            if hasattr(context, "readDataFile"):
-                import StringIO
-                return StringIO.StringIO(
-                    context.readDataFile(filename, subdir=subdir))
-        except ImportError:
-            return None
-    # Either no import context or not there.
-    filename = resolvePackageReferenceOrFile(ref)
-    if os.path.isfile(filename):
-        return open(filename, 'r')
-    return None
-
-
-def resolvePackageReferenceOrFile(reference):
-    """A wrapper around def ``resolvePackageReference`` which also work if
-    reference is a "plain" filename.
-    """
-    
-    if ':' not in reference:
-        return reference
-    try:
-        return resolvePackageReference(reference)
-    except ImportError:
-        return reference
+def pformat_msg(obj):
+    msg = pprint.pformat(obj)
+    if '\n' in msg:
+        msg = '\n' + '\n'.join(
+            '  ' + line for line in msg.splitlines())
+    return msg
 
 
 def resolvePackageReference(reference):
     """Given a package:filename reference, return the filesystem path
-    
+
     ``package`` is a dotted name to a python package, ``filename`` is assumed
     to be a filename located within the package directory.
-    
+
     """
     package, filename = reference.strip().split(':', 1)
     package = __import__(package, {}, {}, ('*',))
     return os.path.join(os.path.dirname(package.__file__), filename)
-
-
-def pathsplit(path, ospath=posixpath):
-    dirname, basename = ospath.split(path)
-    if dirname == ospath.sep:
-        yield dirname
-    elif dirname:
-        for elem in pathsplit(dirname):
-            yield elem
-        yield basename
-    elif basename:
-        yield basename
-
-
-def traverse(context, path, default=None):
-    """Resolve an object without acquisition or views."""
-    for element in pathsplit(path.strip(posixpath.sep)):
-        if not hasattr(context, '_getOb'):
-            return default
-        context = context._getOb(element, default=default)
-        if context is default:
-            break
-    return context
 
 
 def constructPipeline(transmogrifier, sections, pipeline=None):
@@ -101,28 +40,29 @@ def constructPipeline(transmogrifier, sections, pipeline=None):
     
     """
     if pipeline is None:
-        pipeline = iter(()) # empty starter section
+        pipeline = iter(())  # empty starter section
     
     for section_id in sections:
         section_id = section_id.strip()
         if not section_id:
             continue
         section_options = transmogrifier[section_id]
-        blueprint_id = section_options['blueprint'].decode('ascii')
+        blueprint_id = section_options['blueprint']
         blueprint = getUtility(ISectionBlueprint, blueprint_id)
         pipeline = blueprint(transmogrifier, section_id, section_options, 
                              pipeline)
         if not ISection.providedBy(pipeline):
             raise ValueError('Blueprint %s for section %s did not return '
                              'an ISection' % (blueprint_id, section_id))
-        pipeline = iter(pipeline) # ensure you can call .next()
+        pipeline = iter(pipeline)  # ensure you can call .next()
     
     return pipeline
+
 
 def defaultKeys(blueprint, section, key=None):
     """Create a set of item keys based on blueprint id, section name and key
 
-    These keys will match more specificly targeted item keys first; first
+    These keys will match more specifically targeted item keys first; first
     _blueprint_section_key, then _blueprint_key, then _section_key, then _key.
     
     key is optional, and when omitted results in _blueprint_section, then
@@ -133,13 +73,14 @@ def defaultKeys(blueprint, section, key=None):
     if key is not None:
         parts.append(key)
     keys = (
-        '_'.join(parts), # _blueprint_section_key or _blueprint_section
-        '_'.join(parts[:2] + parts[3:]), # _blueprint_key or _blueprint
-        '_'.join(parts[:1] + parts[2:]), # _section_key or _section
+        '_'.join(parts),  # _blueprint_section_key or _blueprint_section
+        '_'.join(parts[:2] + parts[3:]),  # _blueprint_key or _blueprint
+        '_'.join(parts[:1] + parts[2:]),  # _section_key or _section
     )
     if key is not None:
-        keys += ('_'.join(parts[:1] + parts[3:]),) # _key
+        keys += ('_'.join(parts[:1] + parts[3:]),)  # _key
     return keys
+
 
 def defaultMatcher(options, optionname, section, key=None, extra=()):
     """Create a Matcher from an option, with a defaultKeys fallback
@@ -159,6 +100,7 @@ def defaultMatcher(options, optionname, section, key=None, extra=()):
         for key in extra:
             keys += (key,)
     return Matcher(*keys)
+
 
 class Matcher(object):
     """Given a set of string expressions, return the first match.
@@ -198,16 +140,80 @@ class Matcher(object):
         return None, False
 
 
-def pformat_msg(obj):
-    msg = pprint.pformat(obj)
-    if '\n' in msg:
-        msg = '\n' + '\n'.join(
-            '  ' + line for line in msg.splitlines())
-    return msg
+def load_config(configuration_id, seen=None, **overrides):
+    if seen is None:
+        seen = []
+    if configuration_id in seen:
+        raise ValueError(
+            'Recursive configuration extends: %s (%r)' % (configuration_id,
+                                                          seen))
+    seen.append(configuration_id)
+
+    if ':' in configuration_id:
+        configuration_file = resolvePackageReference(configuration_id)
+    else:
+        config_info = configuration_registry.getConfiguration(configuration_id)
+        configuration_file = config_info['configuration']
+
+    parser = configparser.RawConfigParser()
+    parser.optionxform = str  # case sensitive
+    parser.readfp(open(configuration_file))
+
+    result = {}
+    includes = None
+    for section in parser.sections():
+        result[section] = dict(parser.items(section))
+        if section == 'transmogrifier':
+            includes = result[section].pop('include', includes)
+
+    if includes:
+        for configuration_id in includes.split()[::-1]:
+            include = load_config(configuration_id, seen)
+            sections = set(include.keys()) | set(result.keys())
+            for section in sections:
+                result[section] = update_section(
+                    result.get(section, {}), include.get(section, {}))
+
+    seen.pop()
+
+    for section, options in iteritems(overrides):
+        result.setdefault(section, {}).update(options)
+
+    return result
 
 
-# BBB: Condition and Expression were recently moved into their own module
-# noinspection PyUnresolvedReferences
-from collective.transmogrifier.expression import Condition
-# noinspection PyUnresolvedReferences
-from collective.transmogrifier.expression import Expression
+def update_section(section, included):
+    """Update section dictionary with included options
+
+    Included options are only put into the section if not already defined.
+    Section keys ending with + or - are the sum or difference respectively
+    of that option and the included options. Note that - options are processed
+    before + options.
+
+    """
+    keys = set(section.keys())
+    add = set([k for k in keys if k.endswith('+')])
+    remove = set([k for k in keys if k.endswith('-')])
+
+    for key in remove:
+        option = key.strip(' -')
+        if option in keys:
+            raise ValueError('Option %s specified twice', option)
+        included[option] = '\n'.join([
+            v for v in included.get(option, '').splitlines()
+            if v and v not in section[key].splitlines()])
+        del section[key]
+
+    for key in add:
+        option = key.strip(' +')
+        if option in keys:
+            raise ValueError('Option %s specified twice', option)
+        included[option] = '\n'.join([
+            v for v in
+            included.get(option, '').splitlines() + section[key].splitlines()
+            if v
+        ])
+        del section[key]
+
+    included.update(section)
+    return included

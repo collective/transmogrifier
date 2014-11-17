@@ -1,63 +1,41 @@
-version = '1.5'
-
-import os
 from setuptools import setup, find_packages
 
-
-def read(*rnames):
-    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
-
-long_description = ('\n'.join((
-    read('README.rst'), '\n\n',
-    read('docs', 'HISTORY.txt'),
-)))
-
-
 setup(
-    name='collective.transmogrifier',
-    version=version,
+    name='transmogrifier',
+    version='2.0.0',
     description='A configurable pipeline, aimed at transforming content for '
                 'import and export',
-    long_description=long_description,
-    # Get more strings from http://www.python.org/pypi?%3Aaction=list_classifiers
+    long_description=(open('README.rst').read() + '\n' +
+                      open('CHANGES.rst').read()),
+    # Get more strings from
+    # http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
+        'Programming Language :: Python',
     ],
-    keywords='content import filtering',
-    author='Jarn',
-    author_email='info@jarn.com',
-    url='http://pypi.python.org/pypi/collective.transmogrifier',
+    keywords='',
+    author='Asko Soukka',
+    author_email='asko.soukka@iki.fi',
+    url='https://github.com/datakurre/transmogrifier/',
     license='GPL',
     packages=find_packages('src', exclude=['ez_setup']),
     package_dir={'': 'src'},
-    namespace_packages=['collective'],
     include_package_data=True,
     zip_safe=False,
     install_requires=[
         'setuptools',
+        'six',
         'docopt',
+        'chameleon',
+        'zope.interface',
         'zope.component',
         'zope.configuration',
     ],
-    extras_require={
-        'CMF': [
-            'Products.CMFCore'  # requires KGS (e.g. from a Plone release)
-        ],
-        'condition': [
-            'zope.pagetemplate'
-        ],
-        'expression': [
-            'zope.pagetemplate'
-        ],
-        'test': [
-             'lxml',
-             'zope.testing',
-             'zope.annotation',
-             'zope.pagetemplate',
-        ]
-    },
+    extras_require={'test': [
+        'zope.testing'
+    ]},
     entry_points={
         'console_scripts': [
-            'transmogrify=collective.transmogrifier:__main__'
+            'transmogrify=transmogrifier:__main__'
         ]
     }
 )

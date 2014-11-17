@@ -6,7 +6,6 @@ Usage: transmogrify <pipeline>...
        transmogrify --list
 """
 import os
-import ConfigParser
 import importlib
 import logging
 
@@ -16,10 +15,21 @@ from zope.configuration import xmlconfig
 from zope.configuration.config import ConfigurationMachine
 from zope.configuration.xmlconfig import registerCommonDirectives
 
-import collective.transmogrifier
-from collective.transmogrifier.interfaces import ISectionBlueprint
-from collective.transmogrifier.interfaces import ITransmogrifier
-from collective.transmogrifier.transmogrifier import configuration_registry
+from six import print_
+from six import text_type as u
+from six.moves import configparser
+
+from transmogrifier.interfaces import ISectionBlueprint
+from transmogrifier.interfaces import ITransmogrifier
+from transmogrifier.registry import configuration_registry
+
+
+try:
+    import venusianconfiguration
+    HAS_VENUSIANCONFIGURATION = True
+except ImportError:
+    venusianconfiguration = None
+    HAS_VENUSIANCONFIGURATION = False
 
 
 def __main__():
@@ -29,20 +39,25 @@ def __main__():
     # Parse cli arguments
     arguments = docopt(__doc__)
 
+    # Enable venuasianconfiguration
+    if HAS_VENUSIANCONFIGURATION:
+        venusianconfiguration.enable()
+
     # Parse and evaluate configuration and plugins
     config = ConfigurationMachine()
     registerCommonDirectives(config)
-    xmlconfig.include(config, package=collective.transmogrifier,
-                      file='meta.zcml')
-    xmlconfig.include(config, package=collective.transmogrifier,
-                      file='configure.zcml')
+
+    import transmogrifier
+    xmlconfig.include(config, package=transmogrifier, file='meta.zcml')
+    xmlconfig.include(config, package=transmogrifier, file='configure.zcml')
+
     config.execute_actions()
 
     if arguments.get('--list'):
         blueprints = dict(getUtilitiesFor(ISectionBlueprint))
         pipelines = map(configuration_registry.getConfiguration,
                         configuration_registry.listConfigurationIds())
-        print """
+        print_("""
 Available blueprints
 --------------------
 {0:s}
@@ -53,7 +68,7 @@ Available pipelines
 """.format('\n'.join(sorted(blueprints.keys())),
            '\n'.join(['{0:s}\n    {1:s}: {2:s}'.format(
                       p['id'], p['title'], p['description'])
-                      for p in pipelines]))
+                      for p in pipelines])))
         return
 
     # Load optional overrides
@@ -62,7 +77,7 @@ Available pipelines
     if overrides_path and not os.path.isabs(overrides_path):
         overrides_path = os.path.join(os.getcwd(), overrides_path)
     if overrides_path:
-        parser = ConfigParser.RawConfigParser()
+        parser = configparser.RawConfigParser()
         parser.optionxform = str  # case sensitive
         with open(overrides_path) as fp:
             parser.readfp(fp)
@@ -80,4 +95,15 @@ Available pipelines
 
     # Transmogrify
     for pipeline in arguments.get('<pipeline>'):
-        ITransmogrifier(context)(pipeline, **overrides)
+        try:
+            ITransmogrifier(context)(pipeline, **overrides)
+        except KeyError:
+            path = (os.path.isabs(pipeline) and pipeline
+                    or os.path.join(os.getcwd(), pipeline))
+            if os.path.isfile(path):
+                configuration_registry.registerConfiguration(
+                    name=u(pipeline), title=u(pipeline),
+                    description=u('n/a'), configuration=path)
+                ITransmogrifier(context)(pipeline, **overrides)
+            else:
+                raise
