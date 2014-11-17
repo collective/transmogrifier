@@ -1,6 +1,9 @@
 Transmogrifier
 ==============
 
+.. image:: https://secure.travis-ci.org/datakurre/transmogrifier.png
+   :target: http://travis-ci.org/datakurre/transmogrifier
+
 Transmogrifier provides support for building pipelines that turn one thing
 into another. Specifically, transmogrifier pipelines are used to convert and
 import legacy content into a Plone site. It provides the tools to construct
