@@ -9,4 +9,4 @@ install:
 - bin/buildout -N -t 3
 script:
 - bin/test
-- bin/code-analysis
+#- bin/code-analysis
