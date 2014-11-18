@@ -16,5 +16,6 @@ class Breakpoint(ConditionalBlueprint):
     def __iter__(self):
         for item in self.previous:
             if self.condition(item):
+                self.pdb.set_trace(sys._getframe())  # Break!
                 self.pdb.set_trace(sys._getframe().f_back)  # Break!
             yield item

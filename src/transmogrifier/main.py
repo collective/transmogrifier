@@ -34,11 +34,7 @@ except ImportError:
     HAS_VENUSIANCONFIGURATION = False
 
 
-def __main__():
-    # Enable logging
-    logging.basicConfig(level=logging.INFO)
-
-    # Parse cli arguments
+def get_argv():
     argv = sys.argv[:]
     for i in range(len(sys.argv)):
         # Support execution as an argument for some wrapper script
@@ -46,7 +42,15 @@ def __main__():
         if os.path.basename(sys.argv[i]) == 'transmogrify':
             argv = sys.argv[i:]
             break
-    arguments = docopt(__doc__, argv=argv[1:])
+    return argv
+
+
+def __main__():
+    # Enable logging
+    logging.basicConfig(level=logging.INFO)
+
+    # Parse cli arguments
+    arguments = docopt(__doc__, argv=get_argv[1:])
 
     # Enable venuasianconfiguration
     if HAS_VENUSIANCONFIGURATION:
