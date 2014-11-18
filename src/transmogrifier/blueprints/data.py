@@ -39,7 +39,7 @@ class CSVSource(Blueprint):
 
 
 class CSVConstructor(ConditionalBlueprint):
-    def __iter__(self):
+    def __iter__(self):  # flake8: noqa
         path = self.options.get('filename', 'output.csv').strip()
         fieldnames = filter(bool, self.options.get('fieldnames', '').split())
 

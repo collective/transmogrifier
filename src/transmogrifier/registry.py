@@ -45,6 +45,6 @@ else:
 # BBB: Support collective.transmogrifier
 try:
     pkg_resources.get_distribution('collective.transmogrifier')
-    from collective.transmogrifier.transmogrifier import configuration_registry
+    from collective.transmogrifier.transmogrifier import configuration_registry  # flake8: noqa
 except pkg_resources.DistributionNotFound:
     pass
