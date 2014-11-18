@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from io import StringIO
+from io import BytesIO
 from csv import DictReader
 from csv import DictWriter
 import os
@@ -45,7 +46,7 @@ class CSVConstructor(ConditionalBlueprint):
         if path != '-' and not os.path.isabs(path):
             path = os.path.join(os.getcwd(), path)
 
-        fp = StringIO()
+        fp = BytesIO()
         writer = DictWriter(fp, list(fieldnames))
 
         counter = 0

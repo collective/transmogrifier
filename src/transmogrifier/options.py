@@ -11,13 +11,6 @@ class Options(UserDict):
         self._cooked = {}
         self.data = {}
 
-    def __len__(self):
-        return len(self.keys())
-
-    def __iter__(self):
-        for k in self.keys():
-            yield k
-
     def substitute(self):
         for key, value in self._data.items():
             if '${' in value:
@@ -102,12 +95,40 @@ class Options(UserDict):
         else:
             raise KeyError(key)
 
-    def keys(self):
-        raw = self._data
-        return list(self._data) + [k for k in self.data if k not in raw]
-
     def copy(self):
         result = self._data.copy()
         result.update(self._cooked)
         result.update(self.data)
         return result
+
+    def keys(self):
+        for key in self._data:
+            yield key
+        for key in [k for k in self.data if k not in self._data]:
+            yield key
+
+    def has_key(self, key):
+        return key in self.keys()
+
+    def iterkeys(self):
+        for key in self.keys():
+            yield key
+
+    def items(self):
+        for key in self.keys():
+            yield key, self[key]
+
+    iteritems = items
+
+    def values(self):
+        for key in self.keys():
+            yield self[key]
+
+    itervalues = values
+
+    def __len__(self):
+        return len(list(self.keys()))
+
+    def __iter__(self):
+        for k in self.keys():
+            yield k

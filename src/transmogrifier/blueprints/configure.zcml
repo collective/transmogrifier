@@ -26,6 +26,11 @@
       />
 
   <transmogrifier:blueprint
+      component="transmogrifier.blueprints.expression.ExpressionFilter"
+      name="transmogrifier.filter"
+      />
+
+  <transmogrifier:blueprint
       component="transmogrifier.blueprints.data.CSVSource"
       name="transmogrifier.from_csv"
       />

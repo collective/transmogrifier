@@ -52,8 +52,27 @@ class Transmogrifier(UserDict):
     def keys(self):
         return self._data.keys()
 
+    def has_key(self, key):
+        return key in self.keys()
+
+    def iterkeys(self):
+        for key in self.keys():
+            yield key
+
+    def items(self):
+        for key in self.keys():
+            yield key, self[key]
+
+    iteritems = items
+
+    def values(self):
+        for key in self.keys():
+            yield self[key]
+
+    itervalues = values
+
     def __len__(self):
-        return len(self.keys())
+        return len(list(self.keys()))
 
     def __iter__(self):
         for k in self.keys():

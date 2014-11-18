@@ -75,8 +75,9 @@ class Expression(object):
 
     def __call__(self, item, **extras):
         context = {
-            'item': item,
             'transmogrifier': self.transmogrifier,
+            'context': self.transmogrifier.context,
+            'item': item,
             'name': self.name,
             'options': self.options,
             'nothing': None,

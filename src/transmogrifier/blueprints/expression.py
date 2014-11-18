@@ -27,7 +27,7 @@ class ExpressionTransform(ConditionalBlueprint):
     def __iter__(self):
         expressions = {}
         for name, value in self.options.items():
-            if name in ['blueprint', 'condition'] or not name.startswith('_'):
+            if name in ['blueprint', 'condition'] or name.startswith('_'):
                 continue
             expressions[name] = Expression(
                 value or 'python:True',
@@ -44,3 +44,10 @@ class ExpressionTransform(ConditionalBlueprint):
                     for name, expression in expressions.items()
                 ]))
             yield item_transformed
+
+
+class ExpressionFilter(ConditionalBlueprint):
+    def __iter__(self):
+        for item in self.previous:
+            if self.condition(item):
+                yield item
