@@ -50,7 +50,7 @@ def __main__():
     logging.basicConfig(level=logging.INFO)
 
     # Parse cli arguments
-    arguments = docopt(__doc__, argv=get_argv[1:])
+    arguments = docopt(__doc__, argv=get_argv()[1:])
 
     # Enable venuasianconfiguration
     if HAS_VENUSIANCONFIGURATION:
