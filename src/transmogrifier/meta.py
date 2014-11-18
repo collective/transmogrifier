@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from six import text_type as u
+from __future__ import unicode_literals
+
 from zope.component.zcml import IUtilityDirective
 from zope.component.zcml import utility
 from zope.configuration.fields import MessageID
@@ -17,33 +18,31 @@ class IPipelineDirective(Interface):
     """
 
     name = PythonIdentifier(
-        title=u('Name'),
-        description=u("If not specified 'default' is used."),
-        default=u('default'),
+        title='Name',
+        description="If not specified 'default' is used.",
+        default='default',
         required=False
     )
 
     title = MessageID(
-        title=u('Title'),
-        description=u('Optional title for the pipeline configuration.'),
+        title='Title',
+        description='Optional title for the pipeline configuration.',
         default=None,
         required=False
     )
 
     description = MessageID(
-        title=u('Description'),
-        description=u('Optional description for the pipeline configuration.'),
+        title='Description',
+        description='Optional description for the pipeline configuration.',
         default=None,
         required=False
     )
 
     configuration = Path(
-        title=u('Configuration'),
-        description=u('The pipeline configuration file to register.'),
+        title='Configuration',
+        description='The pipeline configuration file to register.',
         required=True
     )
-
-IRegisterConfigDirective = IPipelineDirective  # BBB
 
 
 class IBlueprintDirective(IUtilityDirective):
@@ -52,11 +51,11 @@ class IBlueprintDirective(IUtilityDirective):
 
 
 def pipeline(_context, configuration,
-             name=u('default'), title=None, description=None):
+             name='default', title=None, description=None):
     """Register new pipeline into the global registry
     """
     if title is None:
-        title = u("Pipeline configuration '{0:s}'".format(name))
+        title = "Pipeline configuration '{0:s}'".format(name)
 
     if description is None:
         description = ''
@@ -68,7 +67,7 @@ def pipeline(_context, configuration,
 
 
 def blueprint(_context, provides=ISectionBlueprint, component=None,
-              factory=None, permission=None, name=u('')):
+              factory=None, permission=None, name=''):
     assert ISection in component.__implemented__
     utility(_context, provides=provides, component=component,
             factory=factory, permission=permission, name=name)

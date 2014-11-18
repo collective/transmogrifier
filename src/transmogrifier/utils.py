@@ -6,7 +6,7 @@ import pprint
 from six import iteritems
 from zope.component import getUtility
 
-from six.moves import configparser
+from configparser import RawConfigParser
 from transmogrifier.interfaces import ISection
 from transmogrifier.interfaces import ISectionBlueprint
 from transmogrifier.registry import configuration_registry
@@ -155,7 +155,7 @@ def load_config(configuration_id, seen=None, **overrides):
         config_info = configuration_registry.getConfiguration(configuration_id)
         configuration_file = config_info['configuration']
 
-    parser = configparser.RawConfigParser()
+    parser = RawConfigParser()
     parser.optionxform = str  # case sensitive
     parser.readfp(open(configuration_file))
 

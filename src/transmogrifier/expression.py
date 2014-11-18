@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import functools
 from logging import getLogger
 from logging import DEBUG
 import sys
-
-from six import text_type as u
 
 from chameleon import tales
 from chameleon.astutil import Builtin
@@ -98,5 +98,5 @@ class Expression(object):
         if self.logger.isEnabledFor(DEBUG):
             formatted = pformat_msg(result)
             self.logger.debug(
-                u('Expression returned: {0:s}'.format(formatted)))
+                'Expression returned: {0:s}'.format(formatted))
         return result

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from six.moves import UserDict
+from future.moves.collections import UserDict
 import re
 
 

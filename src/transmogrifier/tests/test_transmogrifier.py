@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import os
 import unittest
 import operator
 import doctest
 
-from six import text_type as u
 from zope.interface import classImplements
 from zope.component import provideUtility
 from zope.configuration import xmlconfig
@@ -45,9 +46,9 @@ class MetaDirectivesTests(unittest.TestCase):
         self.assertEqual(
             configuration_registry.getConfiguration(
                 'transmogrifier.tests.configname'),
-            dict(id=u('transmogrifier.tests.configname'),
-                 title=u('config title'),
-                 description=u('config description'),
+            dict(id='transmogrifier.tests.configname',
+                 title='config title',
+                 description='config description',
                  configuration=os.path.join(os.getcwd(), 'filename.cfg')))
 
     def testConfigZCMLDefaults(self):
@@ -66,10 +67,10 @@ class MetaDirectivesTests(unittest.TestCase):
         self.assertEqual(
             configuration_registry.getConfiguration(
                 'transmogrifier.tests.configname'),
-            dict(id=u('transmogrifier.tests.configname'),
-                 title=u('Pipeline configuration '
-                         "'transmogrifier.tests.configname'"),
-                 description=u(''),
+            dict(id='transmogrifier.tests.configname',
+                 title='Pipeline configuration '
+                       "'transmogrifier.tests.configname'",
+                 description='',
                  configuration=os.path.join(os.getcwd(), 'filename.cfg')))
 
 
@@ -130,7 +131,7 @@ class InclusionManipulationTests(unittest.TestCase):
 
     def setUp(self):
         self.layer.registerConfiguration(
-            u('transmogrifier.tests.included'),
+            'transmogrifier.tests.included',
             """\
 [foo]
 bar=
@@ -194,7 +195,7 @@ class ConstructPipelineTests(unittest.TestCase):
                     yield item
 
         provideUtility(NotAnISection, ISectionBlueprint,
-                       name=u('transmogrifier.tests.noisection'))
+                       name='transmogrifier.tests.noisection')
         self.assertRaises(ValueError, self._doConstruct,
                           config, ['noisection'])
 

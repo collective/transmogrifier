@@ -5,6 +5,9 @@ Usage: transmogrify <pipeline>...
                     [--context=<path.to.context.factory>]
        transmogrify --list
 """
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import os
 import importlib
 import logging
@@ -15,9 +18,7 @@ from zope.configuration import xmlconfig
 from zope.configuration.config import ConfigurationMachine
 from zope.configuration.xmlconfig import registerCommonDirectives
 
-from six import print_
-from six import text_type as u
-from six.moves import configparser
+from configparser import RawConfigParser
 
 from transmogrifier.interfaces import ISectionBlueprint
 from transmogrifier.interfaces import ITransmogrifier
@@ -57,7 +58,7 @@ def __main__():
         blueprints = dict(getUtilitiesFor(ISectionBlueprint))
         pipelines = map(configuration_registry.getConfiguration,
                         configuration_registry.listConfigurationIds())
-        print_("""
+        print("""
 Available blueprints
 --------------------
 {0:s}
@@ -77,7 +78,7 @@ Available pipelines
     if overrides_path and not os.path.isabs(overrides_path):
         overrides_path = os.path.join(os.getcwd(), overrides_path)
     if overrides_path:
-        parser = configparser.RawConfigParser()
+        parser = RawConfigParser()
         parser.optionxform = str  # case sensitive
         with open(overrides_path) as fp:
             parser.readfp(fp)
@@ -102,8 +103,8 @@ Available pipelines
                     or os.path.join(os.getcwd(), pipeline))
             if os.path.isfile(path):
                 configuration_registry.registerConfiguration(
-                    name=u(pipeline), title=u(pipeline),
-                    description=u('n/a'), configuration=path)
+                    name=pipeline, title=pipeline,
+                    description='n/a', configuration=path)
                 ITransmogrifier(context)(pipeline, **overrides)
             else:
                 raise

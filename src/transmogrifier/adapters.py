@@ -4,7 +4,7 @@ from zope.component import adapter
 from zope.interface import implementer
 from zope.interface import Interface
 
-from six.moves import UserDict
+from future.moves.collections import UserDict
 
 from transmogrifier.interfaces import ITransmogrifier
 from transmogrifier.options import Options

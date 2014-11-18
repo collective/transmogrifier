@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import os
 import shutil
 import tempfile
-
-from six import text_type as u
 
 from zope.configuration import xmlconfig
 from zope.configuration.config import ConfigurationMachine
@@ -31,6 +31,7 @@ class TransmogrifierLayer(object):
     def tearDown(cls):
         pass
 
+    # noinspection PyUnusedLocal
     @classmethod
     def testSetUp(cls, test=None):
         cls.context = ConfigurationMachine()
@@ -42,6 +43,7 @@ class TransmogrifierLayer(object):
 
         cls.tempdir = tempfile.mkdtemp('transmogrifierTestConfigs')
 
+    # noinspection PyUnusedLocal
     @classmethod
     def testTearDown(cls, test=None):
         shutil.rmtree(cls.tempdir)
@@ -54,8 +56,8 @@ class TransmogrifierLayer(object):
             fp.write(configuration)
         configuration_registry.registerConfiguration(
             name=name,
-            title=u("Pipeline configuration '{0:s}' from "
-                    "'collective.transmogrifier.tests'".format(name)),
-            description=u(''),
+            title="Pipeline configuration '{0:s}' from "
+                  "'collective.transmogrifier.tests'".format(name),
+            description='',
             configuration=filename
         )
