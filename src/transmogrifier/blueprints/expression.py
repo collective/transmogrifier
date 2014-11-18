@@ -34,9 +34,13 @@ class ExpressionTransform(ConditionalBlueprint):
                 self.transmogrifier, self.name, self.options
             )
         for item in self.previous:
+            if isinstance(item, dict):
+                item_transformed = item
+            else:
+                item_transformed = {}
             if self.condition(item):
-                item.update(dict([
+                item_transformed.update(dict([
                     (name, expression(item))
                     for name, expression in expressions.items()
                 ]))
-            yield item
+            yield item_transformed
