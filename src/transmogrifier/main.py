@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Usage: transmogrify <pipeline>...
+Usage: transmogrify <pipelines_and_overrides>...
                     [--overrides=<path/to/pipeline/overrides.cfg>]
                     [--context=<path.to.context.factory>]
        transmogrify --list
@@ -45,6 +45,45 @@ def get_argv():
     return argv
 
 
+def parse_override(s):
+    section, override = s.split(':', 1)
+    name, value = override.split('=', 1)
+    return section, name, value
+
+
+def get_overrides(arguments):
+    overrides = {}
+
+    overrides_path = arguments.get('--overrides')
+    if overrides_path and not os.path.isabs(overrides_path):
+        overrides_path = os.path.join(os.getcwd(), overrides_path)
+    if overrides_path:
+        parser = RawConfigParser()
+        parser.optionxform = str  # case sensitive
+        with open(overrides_path) as fp:
+            parser.readfp(fp)
+        overrides.update(dict(((section, dict(parser.items(section)))
+                               for section in parser.sections())))
+
+    for candidate in arguments.get('<pipelines_and_overrides>'):
+        try:
+            section, name, value = parse_override(candidate)
+        except ValueError:
+            continue
+        overrides.setdefault(section, {})
+        overrides[section][name] = value
+
+    return overrides
+
+
+def get_pipelines(arguments):
+    for candidate in arguments.get('<pipelines_and_overrides>'):
+        try:
+            parse_override(candidate)
+        except ValueError:
+            yield candidate
+
+
 def __main__():
     # Enable logging
     logging.basicConfig(level=logging.INFO)
@@ -85,17 +124,7 @@ Available pipelines
         return
 
     # Load optional overrides
-    overrides = {}
-    overrides_path = arguments.get('--overrides')
-    if overrides_path and not os.path.isabs(overrides_path):
-        overrides_path = os.path.join(os.getcwd(), overrides_path)
-    if overrides_path:
-        parser = RawConfigParser()
-        parser.optionxform = str  # case sensitive
-        with open(overrides_path) as fp:
-            parser.readfp(fp)
-        overrides.update(dict(((section, dict(parser.items(section)))
-                               for section in parser.sections())))
+    overrides = get_overrides(arguments)
 
     # Initialize optional context
     context_path = arguments.get('--context')
@@ -107,7 +136,7 @@ Available pipelines
         context = getattr(context_module, context_class_name)()
 
     # Transmogrify
-    for pipeline in arguments.get('<pipeline>'):
+    for pipeline in get_pipelines(arguments):
         try:
             ITransmogrifier(context)(pipeline, **overrides)
         except KeyError:
