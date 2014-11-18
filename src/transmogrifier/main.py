@@ -4,6 +4,7 @@ Usage: transmogrify <pipelines_and_overrides>...
                     [--overrides=<path/to/pipeline/overrides.cfg>]
                     [--context=<path.to.context.factory>]
        transmogrify --list
+       transmogrify --show=<pipeline>
 """
 from __future__ import unicode_literals
 from __future__ import print_function
@@ -121,6 +122,23 @@ Available pipelines
            '\n'.join(['{0:s}\n    {1:s}: {2:s}'.format(
                       p['id'], p['title'], p['description'])
                       for p in pipelines])))
+        return
+
+    # Show specified configuration
+    if arguments.get('--show'):
+        pipeline = arguments.get('--show')
+        try:
+            filename = configuration_registry.getConfiguration(
+                pipeline)['configuration']
+        except KeyError:
+            path = (os.path.isabs(pipeline) and pipeline
+                    or os.path.join(os.getcwd(), pipeline))
+            if os.path.isfile(path):
+                filename = path
+            else:
+                raise
+        with open(filename, 'r') as fp:
+            print(fp.read())
         return
 
     # Load optional overrides
