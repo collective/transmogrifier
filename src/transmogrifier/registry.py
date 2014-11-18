@@ -10,22 +10,22 @@ class ConfigurationRegistry(object):
     def clear(self):
         self._config_info = {}
         self._config_ids = []
-    
+
     def registerConfiguration(self, name, title, description, configuration):
         if name in self._config_info:
             raise KeyError('Duplicate pipeline configuration: %s' % name)
-        
+
         self._config_ids.append(name)
         self._config_info[name] = dict(
             id=name,
-            title=title, 
-            description=description, 
+            title=title,
+            description=description,
             configuration=configuration
         )
-            
+
     def getConfiguration(self, id_):
         return self._config_info[id_].copy()
-        
+
     def listConfigurationIds(self):
         return tuple(self._config_ids)
 

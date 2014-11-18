@@ -34,14 +34,14 @@ def resolvePackageReference(reference):
 
 def constructPipeline(transmogrifier, sections, pipeline=None):
     """Construct a transmogrifier pipeline
-    
+
     ``sections`` is a list of pipeline section ids. Start the pipeline with
     ``pipeline``, or if that's None, with an empty iterator.
-    
+
     """
     if pipeline is None:
         pipeline = iter(())  # empty starter section
-    
+
     for section_id in sections:
         section_id = section_id.strip()
         if not section_id:
@@ -49,13 +49,13 @@ def constructPipeline(transmogrifier, sections, pipeline=None):
         section_options = transmogrifier[section_id]
         blueprint_id = section_options['blueprint']
         blueprint = getUtility(ISectionBlueprint, blueprint_id)
-        pipeline = blueprint(transmogrifier, section_id, section_options, 
+        pipeline = blueprint(transmogrifier, section_id, section_options,
                              pipeline)
         if not ISection.providedBy(pipeline):
             raise ValueError('Blueprint %s for section %s did not return '
                              'an ISection' % (blueprint_id, section_id))
         pipeline = iter(pipeline)  # ensure you can call .next()
-    
+
     return pipeline
 
 
@@ -64,7 +64,7 @@ def defaultKeys(blueprint, section, key=None):
 
     These keys will match more specifically targeted item keys first; first
     _blueprint_section_key, then _blueprint_key, then _section_key, then _key.
-    
+
     key is optional, and when omitted results in _blueprint_section, then
     _blueprint, then _section
 
@@ -104,19 +104,19 @@ def defaultMatcher(options, optionname, section, key=None, extra=()):
 
 class Matcher(object):
     """Given a set of string expressions, return the first match.
-    
+
     Normally items are matched using equality, unless the expression
     starts with re: or regexp:, in which case it is treated as a regular
     expression.
-    
+
     Regular expressions will be compiled and applied in match mode
     (matching anywhere in the string).
-    
+
     On calling, returns a tuple of (matched, matchresult), where matched is
     the matched value, and matchresult is either a boolean or the regular
     expression match object. When no match was made, (None, False) is
     returned.
-    
+
     """
     def __init__(self, *expressions):
         self.expressions = []
@@ -130,7 +130,7 @@ class Matcher(object):
             else:
                 expr = lambda x, y=expr: x == y
             self.expressions.append(expr)
-    
+
     def __call__(self, *values):
         for expr in self.expressions:
             for value in values:
@@ -140,7 +140,7 @@ class Matcher(object):
         return None, False
 
 
-def load_config(configuration_id, seen=None, **overrides):
+def load_config(configuration_id, seen=None, **overrides):  # flake8: noqa
     if seen is None:
         seen = []
     if configuration_id in seen:

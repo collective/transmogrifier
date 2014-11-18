@@ -145,7 +145,8 @@ bar=
 [transmogrifier]
 include=transmogrifier.tests.included
 """ + config
-        self.layer.registerConfiguration('transmogrifier.tests.includer', config)
+        self.layer.registerConfiguration('transmogrifier.tests.includer',
+                                         config)
         return load_config('transmogrifier.tests.includer')
 
     def testAdd(self):
