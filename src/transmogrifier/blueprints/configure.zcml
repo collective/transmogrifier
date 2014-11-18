@@ -1,0 +1,38 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:transmogrifier="http://namespaces.plone.org/transmogrifier"
+    i18n_domain="transmogrifier">
+
+  <include package="transmogrifier" file="meta.zcml" />
+
+  <transmogrifier:blueprint
+      component="transmogrifier.blueprints.misc.ItemSource"
+      name="transmogrifier.init"
+      />
+
+  <transmogrifier:blueprint
+      component="transmogrifier.blueprints.breakpoint.Breakpoint"
+      name="transmogrifier.breakpoint"
+      />
+
+  <transmogrifier:blueprint
+      component="transmogrifier.blueprints.expression.ExpressionSource"
+      name="transmogrifier.from_expression"
+      />
+
+  <transmogrifier:blueprint
+      component="transmogrifier.blueprints.expression.ExpressionTransform"
+      name="transmogrifier.expression"
+      />
+
+  <transmogrifier:blueprint
+      component="transmogrifier.blueprints.data.CSVSource"
+      name="transmogrifier.from_csv"
+      />
+
+  <transmogrifier:blueprint
+      component="transmogrifier.blueprints.data.CSVConstructor"
+      name="transmogrifier.to_csv"
+      />
+
+</configure>

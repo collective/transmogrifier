@@ -1,10 +1,9 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:zcml="http://namespaces.zope.org/zcml"
-    xmlns:transmogrifier="http://namespaces.plone.org/transmogrifier"
     i18n_domain="transmogrifier">
 
-  <include package="zope.component" />
+  <include package="zope.component" file="meta.zcml" />
 
   <adapter
       factory=".adapters.Transmogrifier"
@@ -19,29 +18,6 @@
         />
   </configure>
 
-  <transmogrifier:blueprint
-      component=".blueprints.EmptyDictionarySection"
-      name="transmogrifier.empty_dictionary"
-      />
-
-  <transmogrifier:blueprint
-      component=".blueprints.FromExpressionSection"
-      name="transmogrifier.from_expression"
-      />
-
-  <transmogrifier:blueprint
-      component=".blueprints.FromCSVSection"
-      name="transmogrifier.from_csv"
-      />
-
-  <transmogrifier:blueprint
-      component=".blueprints.ExpressionSection"
-      name="transmogrifier.expression"
-      />
-
-  <transmogrifier:blueprint
-      component=".blueprints.ToCSVSection"
-      name="transmogrifier.to_csv"
-      />
+  <include package=".blueprints" />
 
 </configure>
