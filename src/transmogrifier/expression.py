@@ -64,26 +64,24 @@ class Expression(object):
                                   DEFAULT_EXPRESSION_TYPE)
         engine = functools.partial(ExpressionEngine, parser,
                                    default_marker=Builtin('False'))
-        self.evaluator = ExpressionEvaluator(engine, {
+        context = {
+            'context': transmogrifier.context,
+            'decode': lambda x: x.decode('utf-8'),
+            'modules': sys.modules,
+            'name': name,
             'nothing': None,
-            'modules': sys.modules
-        })
+            'options': options,
+            'transmogrifier': transmogrifier,
+        }
+        context.update(extras)
+        self.evaluator = ExpressionEvaluator(engine, context)
 
         logger_base = getattr(
             transmogrifier, 'configuration_id', 'transmogrifier')
         self.logger = getLogger(logger_base + '.' + name)
 
     def __call__(self, item, **extras):
-        context = {
-            'transmogrifier': self.transmogrifier,
-            'context': self.transmogrifier.context,
-            'item': item,
-            'name': self.name,
-            'options': self.options,
-            'nothing': None,
-            'modules': sys.modules,
-        }
-        context.update(self.extras)
+        context = {'item': item}
         context.update(extras)
 
         m = match_prefix(self.expression)

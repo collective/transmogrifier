@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pkg_resources
 import zope.interface
 
 
@@ -51,3 +52,13 @@ class ISection(zope.interface.Interface):
         for the next pipe section.
 
         """
+
+
+# BBB: Support collective.transmogrifier
+try:
+    pkg_resources.get_distribution('collective.transmogrifier')
+    from collective.transmogrifier.interfaces import ITransmogrifier
+    from collective.transmogrifier.interfaces import ISectionBlueprint
+    from collective.transmogrifier.interfaces import ISection
+except pkg_resources.DistributionNotFound:
+    pass

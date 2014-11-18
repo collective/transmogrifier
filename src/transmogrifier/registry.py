@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pkg_resources
 
 
 # noinspection PyPep8Naming
@@ -39,3 +40,11 @@ except ImportError:
 else:
     addCleanUp(configuration_registry.clear)
     del addCleanUp
+
+
+# BBB: Support collective.transmogrifier
+try:
+    pkg_resources.get_distribution('collective.transmogrifier')
+    from collective.transmogrifier.transmogrifier import configuration_registry
+except pkg_resources.DistributionNotFound:
+    pass
