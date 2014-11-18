@@ -11,6 +11,7 @@ from __future__ import print_function
 import os
 import importlib
 import logging
+import sys
 
 from docopt import docopt
 from zope.component import getUtilitiesFor
@@ -38,7 +39,14 @@ def __main__():
     logging.basicConfig(level=logging.INFO)
 
     # Parse cli arguments
-    arguments = docopt(__doc__)
+    argv = sys.argv[:]
+    for i in range(len(sys.argv)):
+        # Support execution as an argument for some wrapper script
+        # e.g. bin/instance -OPlone bin/transmogrify pipeline.cfg
+        if os.path.basename(sys.argv[i]) == 'transmogrify':
+            argv = sys.argv[i:]
+            break
+    arguments = docopt(__doc__, argv=argv[1:])
 
     # Enable venuasianconfiguration
     if HAS_VENUSIANCONFIGURATION:

@@ -18,13 +18,15 @@ class Transmogrifier(UserDict):
 
     def __init__(self, context):
         self.context = context
+        self._data = {}
+        self.data = {}
 
     def __call__(self, configuration_id, **overrides):
         self.configuration_id = configuration_id
-        self._raw = load_config(configuration_id, **overrides)
-        self._data = {}
+        self._data = load_config(configuration_id, **overrides)
+        self.data = {}
 
-        options = self._raw['transmogrifier']
+        options = self._data['transmogrifier']
         sections = options['pipeline'].splitlines()
         pipeline = constructPipeline(self, sections)
 
@@ -34,26 +36,21 @@ class Transmogrifier(UserDict):
 
     def __getitem__(self, section):
         try:
-            return self._data[section]
+            return self.data[section]
         except KeyError:
             pass
 
         # May raise key error
-        data = self._raw[section]
+        data = self._data[section]
 
         options = Options(self, section, data)
-        self._data[section] = options
+        self[section] = options  # must be set before substitution below
         options.substitute()
-        return options
 
-    def __setitem__(self, key, value):
-        raise NotImplementedError('__setitem__')
-
-    def __delitem__(self, key):
-        raise NotImplementedError('__delitem__')
+        return self.data[section]
 
     def keys(self):
-        return self._raw.keys()
+        return self._data.keys()
 
     def __len__(self):
         return len(self.keys())

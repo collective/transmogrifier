@@ -7,9 +7,9 @@ class Options(UserDict):
     def __init__(self, transmogrifier, section, data):
         self.transmogrifier = transmogrifier
         self.section = section
-        self._raw = data
+        self._data = data
         self._cooked = {}
-        self._data = {}
+        self.data = {}
 
     def __len__(self):
         return len(self.keys())
@@ -19,19 +19,19 @@ class Options(UserDict):
             yield k
 
     def substitute(self):
-        for key, value in self._raw.items():
+        for key, value in self._data.items():
             if '${' in value:
                 self._cooked[key] = self._sub(value, [(self.section, key)])
 
     def get(self, option, default=None, seen=None):
         try:
-            return self._data[option]
+            return self.data[option]
         except KeyError:
             pass
 
         value = self._cooked.get(option)
         if value is None:
-            value = self._raw.get(option)
+            value = self._data.get(option)
             if value is None:
                 return default
 
@@ -47,7 +47,7 @@ class Options(UserDict):
             value = self._sub(value, seen)
             seen.pop()
 
-        self._data[option] = value
+        self.data[option] = value
         return value
 
     _template_split = re.compile('([$]{[^}]*})').split
@@ -76,7 +76,7 @@ class Options(UserDict):
 
     def __getitem__(self, key):
         try:
-            return self._data[key]
+            return self.data[key]
         except KeyError:
             pass
 
@@ -88,26 +88,26 @@ class Options(UserDict):
     def __setitem__(self, option, value):
         if not isinstance(value, str):
             raise TypeError('Option values must be strings', value)
-        self._data[option] = value
+        self.data[option] = value
 
     def __delitem__(self, key):
-        if key in self._raw:
-            del self._raw[key]
-            if key in self._data:
-                del self._data[key]
+        if key in self._data:
+            del self._data[key]
+            if key in self.data:
+                del self.data[key]
             if key in self._cooked:
                 del self._cooked[key]
-        elif key in self._data:
-            del self._data[key]
+        elif key in self.data:
+            del self.data[key]
         else:
             raise KeyError(key)
 
     def keys(self):
-        raw = self._raw
-        return list(self._raw) + [k for k in self._data if k not in raw]
+        raw = self._data
+        return list(self._data) + [k for k in self.data if k not in raw]
 
     def copy(self):
-        result = self._raw.copy()
+        result = self._data.copy()
         result.update(self._cooked)
-        result.update(self._data)
+        result.update(self.data)
         return result

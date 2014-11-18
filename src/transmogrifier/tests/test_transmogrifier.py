@@ -80,9 +80,8 @@ class OptionSubstitutionTests(unittest.TestCase):
 
     def _loadOptions(self, opts):
         from transmogrifier.adapters import Transmogrifier
-        tm = Transmogrifier(object())
-        tm._raw = opts
-        tm._data = {}
+        tm = Transmogrifier({})
+        tm._data = opts
         return tm
 
     def testNoSubs(self):
@@ -95,11 +94,10 @@ class OptionSubstitutionTests(unittest.TestCase):
         self.assertEqual(opts['eggs']['foo'], 'bar')
 
     def testSimpleSub(self):
-        opts = self._loadOptions(
-            dict(
-                spam=dict(monty='python'),
-                eggs=dict(foo='${spam:monty}'),
-            ))
+        opts = self._loadOptions(dict(
+            spam=dict(monty='python'),
+            eggs=dict(foo='${spam:monty}'),
+        ))
         self.assertEqual(opts['spam']['monty'], 'python')
         self.assertEqual(opts['eggs']['foo'], 'python')
 
