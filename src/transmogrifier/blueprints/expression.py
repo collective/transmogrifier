@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import importlib
+
 from transmogrifier.blueprints import Blueprint
 from transmogrifier.blueprints import ConditionalBlueprint
 
@@ -14,6 +16,11 @@ class ExpressionSource(Blueprint):
     def __iter__(self):
         for item in self.previous:
             yield item
+
+        modules = filter(bool, map(
+            str.strip, self.options.get('modules').split()))
+        for module in modules:
+            importlib.import_module(module)
 
         expression = Expression(
             self.options.get('expression') or 'python:[{}]',

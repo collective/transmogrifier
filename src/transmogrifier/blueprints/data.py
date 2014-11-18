@@ -46,7 +46,10 @@ class CSVConstructor(ConditionalBlueprint):
         if path != '-' and not os.path.isabs(path):
             path = os.path.join(os.getcwd(), path)
 
-        fp = BytesIO()
+        if sys.version_info[0] < 3:
+            fp = BytesIO()
+        else:
+            fp = StringIO()
         writer = DictWriter(fp, list(fieldnames))
 
         counter = 0
