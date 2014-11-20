@@ -4,7 +4,7 @@ setup(
     name='blueprints',
     packages=find_packages('src', exclude=['ez_setup']),
     package_dir={'': 'src'},
-    install_requires = [
+    install_requires=[
         'setuptools',
         'transmogrifier',
         'z3c.autoinclude',
