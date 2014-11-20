@@ -1,0 +1,48 @@
+Transmogrifier Project
+======================
+
+Activation
+----------
+
+.. code:: bash
+
+   $ pip install -r requirements.txt
+   $ python setup.py develop
+
+It's recommended to use Python (2.7 or 3.4, or greater) virtualenv_.
+
+.. _virtualenv: https://pypi.python.org/pypi/virtualenv
+
+
+Usage
+-----
+
+.. code:: bash
+
+   $ transmogrify
+
+.. code:: bash
+
+   $ transmogrify --list
+
+.. code:: bash
+
+   $ transmogrify example
+
+
+Blueprints
+----------
+
+New blueprints can be registered by implementing them in ``.py``-files at
+``./src/blueprints/``.
+
+Example: ``./src/blueprints/mock_contacts.py``
+
+
+Pipelines
+---------
+
+New named pipelines can be registered by simply adding new ``.cfg`` pipeline
+file into ``./src/pipelines/``.
+
+Example: ``./src/pipelines/example.cfg``

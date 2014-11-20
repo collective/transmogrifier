@@ -1,0 +1,3 @@
+git+https://github.com/datakurre/transmogrifier
+git+https://github.com/datakurre/z3c.autoinclude
+git+https://github.com/datakurre/venusianconfiguration
