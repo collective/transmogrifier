@@ -78,7 +78,7 @@ class CSVConstructor(ConditionalBlueprint):
             with open(path, 'w') as fp2:
                 fp2.write(fp.read())
 
-        logger.info('{0:s}:{1:s} saved {2:d} items to {3:s}'.format(
+        logger.info('{0:s}:{1:s} wrote {2:d} items to {3:s}'.format(
             self.__class__.__name__, self.name, counter, path,
             self.options.get('filename', 'output.csv')
         ))
