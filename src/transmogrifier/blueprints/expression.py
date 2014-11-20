@@ -60,8 +60,8 @@ class ExpressionTransform(ConditionalBlueprint):
 
 class ExpressionConstructor(ConditionalBlueprint):
     def __iter__(self):
-        mode = self.options.get('mode', 'each')
-        assert mode in ('each', 'all')
+        mode = self.options.get('mode', 'item')
+        assert mode in ('each', 'all', 'item', 'items')
 
         modules = filter(bool, map(
             str.strip, self.options.get('modules', '').split()))
@@ -77,11 +77,11 @@ class ExpressionConstructor(ConditionalBlueprint):
         for item in self.previous:
             if self.condition(item):
                 items.append(item)
-                if mode == 'each':
+                if mode in ('each', 'item'):
                     expression(item, items=items)
             yield item
 
-        if mode == 'all':
+        if mode in ('all', 'items'):
             expression(None, items=items)
 
 
