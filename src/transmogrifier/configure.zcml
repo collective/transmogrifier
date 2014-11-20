@@ -20,10 +20,16 @@
   </configure>
 
   <configure zcml:condition="installed collective.transmogrifier">
+    <!-- BBB to include blueprints form collective.transmogrifier -->
     <include package="Zope2.App" file="meta.zcml"
              zcml:condition="installed Zope2" />
     <include package="collective.transmogrifier" file="meta.zcml" />
     <include package="collective.transmogrifier" file="configure.zcml" />
+    <include package="z3c.autoinclude" file="meta.zcml"
+             zcml:condition="installed z3c.autoinclude" />
+    <!-- BBB to include blueprints from transmogrify-namespace -->
+    <includePlugins package="transmogrify" file="configure.zcml"
+                    zcml:condition="installed transmogrify" />
   </configure>
 
   <include package=".blueprints" />
