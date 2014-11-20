@@ -25,9 +25,9 @@
              zcml:condition="installed Zope2" />
     <include package="collective.transmogrifier" file="meta.zcml" />
     <include package="collective.transmogrifier" file="configure.zcml" />
+    <!-- BBB to include blueprints from transmogrify-namespace -->
     <include package="z3c.autoinclude" file="meta.zcml"
              zcml:condition="installed z3c.autoinclude" />
-    <!-- BBB to include blueprints from transmogrify-namespace -->
     <includePlugins package="transmogrify" file="configure.zcml"
                     zcml:condition="installed transmogrify" />
   </configure>

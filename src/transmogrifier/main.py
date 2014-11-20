@@ -26,13 +26,21 @@ from transmogrifier.interfaces import ISectionBlueprint
 from transmogrifier.interfaces import ITransmogrifier
 from transmogrifier.registry import configuration_registry
 
+import pkg_resources
 
 try:
-    import venusianconfiguration
-    HAS_VENUSIANCONFIGURATION = True
-except ImportError:
-    venusianconfiguration = None
+    pkg_resources.get_distribution('venusianconfiguration')
+except pkg_resources.DistributionNotFound:
     HAS_VENUSIANCONFIGURATION = False
+else:
+    HAS_VENUSIANCONFIGURATION = True
+
+try:
+    pkg_resources.get_distribution('Zope2')
+except pkg_resources.DistributionNotFound:
+    HAS_ZOPE = False
+else:
+    HAS_ZOPE = True
 
 
 def get_argv():
@@ -85,6 +93,30 @@ def get_pipelines(arguments):
             yield candidate
 
 
+def configure():
+    # Enable venuasianconfiguration
+    if HAS_VENUSIANCONFIGURATION:
+        import venusianconfiguration
+        venusianconfiguration.enable()
+
+    # BBB: Support Zope's global configuration context
+    if HAS_ZOPE:
+        try:
+            import Zope2.App.zcml
+            config = Zope2.App.zcml._context or ConfigurationMachine()
+        except (ImportError, AttributeError):
+            config = ConfigurationMachine()
+    else:
+        config = ConfigurationMachine()
+
+    # Parse and evaluate configuration and plugins
+    registerCommonDirectives(config)
+    import transmogrifier
+    xmlconfig.include(config, package=transmogrifier, file='meta.zcml')
+    xmlconfig.include(config, package=transmogrifier, file='configure.zcml')
+    config.execute_actions()
+
+
 def __main__():
     # Enable logging
     logging.basicConfig(level=logging.INFO)
@@ -92,19 +124,8 @@ def __main__():
     # Parse cli arguments
     arguments = docopt(__doc__, argv=get_argv()[1:])
 
-    # Enable venuasianconfiguration
-    if HAS_VENUSIANCONFIGURATION:
-        venusianconfiguration.enable()
-
-    # Parse and evaluate configuration and plugins
-    config = ConfigurationMachine()
-    registerCommonDirectives(config)
-
-    import transmogrifier
-    xmlconfig.include(config, package=transmogrifier, file='meta.zcml')
-    xmlconfig.include(config, package=transmogrifier, file='configure.zcml')
-
-    config.execute_actions()
+    # Resolve configuration
+    configure()
 
     if arguments.get('--list'):
         blueprints = dict(getUtilitiesFor(ISectionBlueprint))
