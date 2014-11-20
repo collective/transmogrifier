@@ -58,6 +58,33 @@ class ExpressionTransform(ConditionalBlueprint):
             yield item_transformed
 
 
+class ExpressionConstructor(ConditionalBlueprint):
+    def __iter__(self):
+        mode = self.options.get('mode', 'each')
+        assert mode in ('each', 'all')
+
+        modules = filter(bool, map(
+            str.strip, self.options.get('modules', '').split()))
+        for module in modules:
+            importlib.import_module(module)
+
+        expression = Expression(
+            self.options.get('expression') or 'python:True',
+            self.transmogrifier, self.name, self.options
+        )
+
+        items = []
+        for item in self.previous:
+            if self.condition(item):
+                items.append(item)
+                if mode == 'each':
+                    expression(item, items=items)
+            yield item
+
+        if mode == 'all':
+            expression(None, items=items)
+
+
 class ExpressionFilter(ConditionalBlueprint):
     def __iter__(self):
         for item in self.previous:

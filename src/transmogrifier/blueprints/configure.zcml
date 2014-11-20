@@ -21,6 +21,11 @@
       />
 
   <transmogrifier:blueprint
+      component="transmogrifier.blueprints.expression.ExpressionConstructor"
+      name="transmogrifier.to_expression"
+      />
+
+  <transmogrifier:blueprint
       component="transmogrifier.blueprints.expression.ExpressionTransform"
       name="transmogrifier.expression"
       />
