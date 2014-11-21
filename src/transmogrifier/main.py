@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 Usage: transmogrify <pipelines_and_overrides>...
-                    [--overrides=<path/to/pipeline/overrides.cfg>]
-                    [--context=<path.to.context.factory>]
+                    [--overrides=overrides.cfg>]
+                    [--include=package>...]
+                    [--include=package:filename>...]
+                    [--context=<package.module.factory>]
        transmogrify --list
+                    [--include=package>...]
        transmogrify --show=<pipeline>
+                    [--include=package>...]
 """
 from __future__ import unicode_literals
 from __future__ import print_function
@@ -26,18 +30,20 @@ from transmogrifier.interfaces import ISectionBlueprint
 from transmogrifier.interfaces import ITransmogrifier
 from transmogrifier.registry import configuration_registry
 
-import pkg_resources
+from pkg_resources import get_distribution
+from pkg_resources import DistributionNotFound
+from pkg_resources import resource_exists
 
 try:
-    pkg_resources.get_distribution('venusianconfiguration')
-except pkg_resources.DistributionNotFound:
+    get_distribution('venusianconfiguration')
+except DistributionNotFound:
     HAS_VENUSIANCONFIGURATION = False
 else:
     HAS_VENUSIANCONFIGURATION = True
 
 try:
-    pkg_resources.get_distribution('Zope2')
-except pkg_resources.DistributionNotFound:
+    get_distribution('Zope2')
+except DistributionNotFound:
     HAS_ZOPE = False
 else:
     HAS_ZOPE = True
@@ -93,7 +99,21 @@ def get_pipelines(arguments):
             yield candidate
 
 
-def configure():
+def parse_include(spec):
+    try:
+        package, filename = spec.split(':', 1)
+    except ValueError:
+        package = spec
+        filename = None
+    if not filename and resource_exists(package, 'configure.zcml'):
+        filename = 'configure.zcml'
+    elif HAS_VENUSIANCONFIGURATION:
+        if not filename and resource_exists(package, 'configure.py'):
+            filename = 'configure.py'
+    return package, filename
+
+
+def configure(arguments):
     # Enable venuasianconfiguration
     if HAS_VENUSIANCONFIGURATION:
         import venusianconfiguration
@@ -111,9 +131,18 @@ def configure():
 
     # Parse and evaluate configuration and plugins
     registerCommonDirectives(config)
+
     import transmogrifier
     xmlconfig.include(config, package=transmogrifier, file='meta.zcml')
     xmlconfig.include(config, package=transmogrifier, file='configure.zcml')
+
+    # Resolve includes
+    for include in set(arguments.get('--include')):
+        package, filename = parse_include(include)
+        if package and filename:
+            package = importlib.import_module(package)
+            xmlconfig.include(config, package=package, file=filename)
+
     config.execute_actions()
 
 
@@ -125,8 +154,9 @@ def __main__():
     arguments = docopt(__doc__, argv=get_argv()[1:])
 
     # Resolve configuration
-    configure()
+    configure(arguments)
 
+    # Show registered components
     if arguments.get('--list'):
         blueprints = dict(getUtilitiesFor(ISectionBlueprint))
         pipelines = map(configuration_registry.getConfiguration,
