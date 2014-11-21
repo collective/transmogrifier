@@ -100,6 +100,10 @@ def get_pipelines(arguments):
 
 
 def parse_include(spec):
+    cleanup = False
+    if not '.' in sys.path:
+        sys.path.append('.')
+        cleanup = True
     try:
         package, filename = spec.split(':', 1)
     except ValueError:
@@ -110,6 +114,11 @@ def parse_include(spec):
     elif HAS_VENUSIANCONFIGURATION:
         if not filename and resource_exists(package, 'configure.py'):
             filename = 'configure.py'
+        else:
+            # Support including single module in the current working directory
+            package = importlib.import_module(package)
+    if cleanup:
+        sys.path.remove('.')
     return package, filename
 
 
@@ -142,6 +151,16 @@ def configure(arguments):
         if package and filename:
             package = importlib.import_module(package)
             xmlconfig.include(config, package=package, file=filename)
+        elif package and HAS_VENUSIANCONFIGURATION:
+            # Support including single module in the current working directory
+            import venusian
+            import venusianconfiguration
+            config.package = package
+            venusianconfiguration._scan(
+                venusian.Scanner(context=config, testing=False),
+                package, force=True
+            )
+            config.package = None
 
     config.execute_actions()
 
