@@ -6,11 +6,6 @@
   <include package="transmogrifier" file="meta.zcml" />
 
   <transmogrifier:blueprint
-      component="transmogrifier.blueprints.misc.ItemSource"
-      name="transmogrifier.init"
-      />
-
-  <transmogrifier:blueprint
       component="transmogrifier.blueprints.breakpoint.Breakpoint"
       name="transmogrifier.breakpoint"
       />
