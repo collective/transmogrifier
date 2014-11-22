@@ -2,13 +2,13 @@
 """
 Usage: transmogrify <pipelines_and_overrides>...
                     [--overrides=overrides.cfg>]
-                    [--include=package>...]
+                    [--include=package_or_module>...]
                     [--include=package:filename>...]
                     [--context=<package.module.factory>]
        transmogrify --list
-                    [--include=package>...]
+                    [--include=package_or_module>...]
        transmogrify --show=<pipeline>
-                    [--include=package>...]
+                    [--include=package_or_module>...]
 """
 from __future__ import unicode_literals
 from __future__ import print_function
