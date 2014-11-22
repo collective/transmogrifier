@@ -21,5 +21,5 @@ for resource in pkg_resources.resource_listdir(__package__, ''):
 
 
 # Include pipelines
-import pipelines
-configure.include(package=pipelines, file='configure.py')
+import {{{project.name}}}_pipelines
+configure.include(package={{{project.name}}}_pipelines, file='configure.py')

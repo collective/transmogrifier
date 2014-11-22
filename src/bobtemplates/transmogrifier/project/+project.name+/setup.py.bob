@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='blueprints',
+    name='{{{project.name}}}_blueprints',
     packages=find_packages('src', exclude=['ez_setup']),
     package_dir={'': 'src'},
     install_requires=[

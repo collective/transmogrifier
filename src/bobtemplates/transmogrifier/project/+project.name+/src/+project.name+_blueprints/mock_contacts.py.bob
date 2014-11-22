@@ -7,7 +7,7 @@ from faker import Faker
 configure_blueprint = configure.transmogrifier.blueprint.component
 
 
-@configure_blueprint(name='custom.mock_contacts')
+@configure_blueprint(name='{{{project.name}}}.mock_contacts')
 class MockContacts(Blueprint):
     def __iter__(self):
         for item in self.previous:

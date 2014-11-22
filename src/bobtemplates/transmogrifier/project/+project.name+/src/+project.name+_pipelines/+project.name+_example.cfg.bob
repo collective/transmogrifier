@@ -7,7 +7,7 @@ pipeline =
     to_csv
 
 [mock_contacts]
-blueprint = custom.mock_contacts
+blueprint = {{{project.name}}}.mock_contacts
 amount = 2
 
 [to_upper]
