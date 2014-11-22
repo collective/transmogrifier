@@ -153,14 +153,8 @@ def configure(arguments):
             xmlconfig.include(config, package=package, file=filename)
         elif package and HAS_VENUSIANCONFIGURATION:
             # Support including single module in the current working directory
-            import venusian
             import venusianconfiguration
-            config.package = package
-            venusianconfiguration._scan(
-                venusian.Scanner(context=config, testing=False),
-                package, force=True
-            )
-            config.package = None
+            venusianconfiguration.venusianscan(package, config)
 
     config.execute_actions()
 
