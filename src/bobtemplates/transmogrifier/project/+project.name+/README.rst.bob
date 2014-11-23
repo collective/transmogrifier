@@ -27,22 +27,22 @@ Usage
 
 .. code:: bash
 
-   $ transmogrify example
+   $ transmogrify {{{project.name}}}_example
 
 
 Blueprints
 ----------
 
 New blueprints can be registered by implementing them in ``.py``-files at
-``./src/blueprints/``.
+``./src/{{{project.name}}}_blueprints/``.
 
-Example: ``./src/blueprints/mock_contacts.py``
+Example: ``./src/{{{project.name}}}_blueprints/mock_contacts.py``
 
 
 Pipelines
 ---------
 
 New named pipelines can be registered by simply adding new ``.cfg`` pipeline
-file into ``./src/pipelines/``.
+file into ``./src/{{{project.name}}}_pipelines/``.
 
-Example: ``./src/pipelines/example.cfg``
+Example: ``./src/{{{project.name}}}_pipelines/{{{project.name}}}_example.cfg``
