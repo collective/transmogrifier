@@ -58,7 +58,8 @@ class CSVConstructor(ConditionalBlueprint):
                 if not writer.fieldnames:
                     writer.fieldnames = item.keys()
                 if counter == 0:
-                    writer.writeheader()
+                    header = dict(zip(writer.fieldnames, writer.fieldnames))
+                    writer.writerow(header)
 
                 clone = item.copy()
                 for fieldname in writer.fieldnames:

@@ -101,7 +101,7 @@ def get_pipelines(arguments):
 
 def parse_include(spec):
     cleanup = False
-    if not '.' in sys.path:
+    if '.' not in sys.path:
         sys.path.append('.')
         cleanup = True
     try:
