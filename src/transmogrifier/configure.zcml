@@ -6,8 +6,8 @@
   <include package="zope.component" file="meta.zcml" />
 
   <adapter
-      factory=".adapters.Transmogrifier"
-      provides=".interfaces.ITransmogrifier"
+      factory="transmogrifier.adapters.Transmogrifier"
+      provides="transmogrifier.interfaces.ITransmogrifier"
       zcml:condition="not-installed collective.transmogrifier"
       />
 
@@ -25,6 +25,12 @@
              zcml:condition="installed Zope2" />
     <include package="collective.transmogrifier" file="meta.zcml" />
     <include package="collective.transmogrifier" file="configure.zcml" />
+    <!-- BBB register the old transmogrifier to be available for everyone -->
+    <adapter
+        for="*"
+        provides="collective.transmogrifier.interfaces.ITransmogrifier"
+        factory="collective.transmogrifier.transmogrifier.Transmogrifier"
+        />
     <!-- BBB to include blueprints from transmogrify-namespace -->
     <include package="z3c.autoinclude" file="meta.zcml"
              zcml:condition="installed z3c.autoinclude" />
@@ -32,6 +38,6 @@
                     zcml:condition="installed transmogrify" />
   </configure>
 
-  <include package=".blueprints" />
+  <include package="transmogrifier.blueprints" />
 
 </configure>
