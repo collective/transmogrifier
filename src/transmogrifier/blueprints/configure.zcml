@@ -11,6 +11,11 @@
       />
 
   <transmogrifier:blueprint
+      component="transmogrifier.blueprints.logger.Logger"
+      name="transmogrifier.logger"
+      />
+
+  <transmogrifier:blueprint
       component="transmogrifier.blueprints.expression.ExpressionSource"
       name="transmogrifier.from_expression"
       />
