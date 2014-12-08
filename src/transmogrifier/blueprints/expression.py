@@ -107,14 +107,14 @@ class RegExpTransform(ConditionalBlueprint):
             key = self.options['key']
             regexp = re.compile(self.options['expression'])
             strfmt = self.options['format'].replace('%%', '%')
-            order = map(int, map(str.strip, self.options['order'].split(',')))
+            order = [int(s.strip()) for s in self.options['order'].split(',')]
         except KeyError as e:
             raise SyntaxError('Must specify \'{0:s}\''.format(e))
 
         for item in self.previous:
             if self.condition(item):
                 result = regexp.search(item[key])
-                if result and result.groups is not None:
+                if result and result.groups():
                     item[key] = \
-                        strfmt % tuple([result.groups[i] for i in order])
+                        strfmt % tuple([result.groups()[i] for i in order])
             yield item
