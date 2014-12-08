@@ -101,11 +101,11 @@ class ExpressionFilter(ConditionalBlueprint):
 # transmogrify/regexp
 # by aclark
 
-class RegexTransform(ConditionalBlueprint):
+class RegExpTransform(ConditionalBlueprint):
     def __iter__(self):
         try:
             key = self.options['key']
-            expr = re.compile(self.options['expression'])
+            regexp = re.compile(self.options['expression'])
             strfmt = self.options['format'].replace('%%', '%')
             order = map(int, map(str.strip, self.options['order'].split(',')))
         except KeyError as e:
@@ -113,7 +113,7 @@ class RegexTransform(ConditionalBlueprint):
 
         for item in self.previous:
             if self.condition(item):
-                result = expr.search(item[key])
+                result = regexp.search(item[key])
                 if result and result.groups is not None:
                     item[key] = \
                         strfmt % tuple([result.groups[i] for i in order])
