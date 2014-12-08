@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import re
 import importlib
 
 from transmogrifier.blueprints import Blueprint
@@ -27,10 +28,10 @@ class ExpressionSource(Blueprint):
             self.transmogrifier, self.name, self.options
         )
 
-        wrap = self.options.get('wrap')
+        key = self.options.get('key')
         for item in (expression(None) or []):
-            if wrap:
-                yield dict(wrap=item)
+            if key:
+                yield {key: item}
             else:
                 yield item
 
@@ -95,3 +96,25 @@ class ExpressionFilter(ConditionalBlueprint):
         for item in self.previous:
             if self.condition(item):
                 yield item
+
+
+# transmogrify/regexp
+# by aclark
+
+class RegexTransform(ConditionalBlueprint):
+    def __iter__(self):
+        try:
+            key = self.options['key']
+            expr = re.compile(self.options['expression'])
+            strfmt = self.options['format'].replace('%%', '%')
+            order = map(int, map(str.strip, self.options['order'].split(',')))
+        except KeyError as e:
+            raise SyntaxError('Must specify \'{0:s}\''.format(e))
+
+        for item in self.previous:
+            if self.condition(item):
+                result = expr.search(item[key])
+                if result and result.groups is not None:
+                    item[key] = \
+                        strfmt % tuple([result.groups[i] for i in order])
+            yield item
