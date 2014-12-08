@@ -17,5 +17,4 @@ class Breakpoint(ConditionalBlueprint):
         for item in self.previous:
             if self.condition(item):
                 self.pdb.set_trace(sys._getframe())  # Break!
-                self.pdb.set_trace(sys._getframe().f_back)  # Break!
             yield item
