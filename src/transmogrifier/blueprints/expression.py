@@ -26,8 +26,13 @@ class ExpressionSource(Blueprint):
             self.options.get('expression') or 'python:[{}]',
             self.transmogrifier, self.name, self.options
         )
+
+        name = self.options.get('name')
         for item in (expression(None) or []):
-            yield item
+            if name:
+                yield dict(name=item)
+            else:
+                yield item
 
 
 class ExpressionTransform(ConditionalBlueprint):
