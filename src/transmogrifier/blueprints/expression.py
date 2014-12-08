@@ -27,10 +27,10 @@ class ExpressionSource(Blueprint):
             self.transmogrifier, self.name, self.options
         )
 
-        name = self.options.get('name')
+        wrap = self.options.get('wrap')
         for item in (expression(None) or []):
-            if name:
-                yield dict(name=item)
+            if wrap:
+                yield dict(wrap=item)
             else:
                 yield item
 
