@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from email.message import Message
 
 import re
 import importlib
@@ -50,14 +51,13 @@ class ExpressionTransform(ConditionalBlueprint):
         expressions = sorted(expressions.items(), key=lambda x: x[0])
 
         for item in self.previous:
-            if isinstance(item, dict):
-                item_transformed = item
-            else:
-                item_transformed = {}
             if self.condition(item):
-                for name, expression in expressions:
-                    item_transformed[name] = expression(item)
-            yield item_transformed
+                if isinstance(item, dict) or isinstance(item, Message):
+                    for name, expression in expressions:
+                        item[name] = expression(item)
+                elif 'expression' in expressions:
+                    item = expression(item)
+            yield item
 
 
 class ExpressionConstructor(ConditionalBlueprint):
