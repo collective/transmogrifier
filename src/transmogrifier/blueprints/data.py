@@ -25,7 +25,7 @@ class CSVSource(Blueprint):
         if path != '-' and not os.path.isabs(path):
             path = os.path.join(os.getcwd(), path)
 
-        fb_buffer = StringIO()
+        fb_buffer = BytesIO()
         if path == '-':
             fb_buffer.write(sys.stdin.read())
         else:
