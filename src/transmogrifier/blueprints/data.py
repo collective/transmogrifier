@@ -56,7 +56,8 @@ class CSVConstructor(ConditionalBlueprint):
         for item in self.previous:
             if self.condition(item) and isinstance(item, dict):
                 if not writer.fieldnames:
-                    writer.fieldnames = item.keys()
+                    writer.fieldnames = [key for key in item.keys()
+                                         if not key.startswith('_')]
                 if counter == 0:
                     header = dict(zip(writer.fieldnames, writer.fieldnames))
                     writer.writerow(header)
