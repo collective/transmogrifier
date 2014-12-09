@@ -33,9 +33,9 @@ class Logger(ConditionalBlueprint):
             if logger.isEnabledFor(level) and self.condition(item):
                 if key is None:
                     copy = {}
-                    for sub_key in item.keys():
-                        if not delete(sub_key)[1]:
-                            copy[sub_key] = item[sub_key]
+                    for key_ in item.keys():
+                        if not delete(key_)[1]:
+                            copy[key_] = item[key_]
                     msg = pformat_msg(copy)
                 else:
                     msg = item.get(key, '-- Missing key --')
