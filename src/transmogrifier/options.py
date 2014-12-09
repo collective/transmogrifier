@@ -132,3 +132,6 @@ class Options(UserDict):
     def __iter__(self):
         for k in self.keys():
             yield k
+
+    def __contains__(self, key):
+        return key in self.keys()
