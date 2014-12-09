@@ -230,5 +230,7 @@ Available pipelines
                     name=pipeline, title=pipeline,
                     description='n/a', configuration=path)
                 retry = True
+            else:
+                raise
         if retry:
             ITransmogrifier(context)(pipeline, **overrides)
