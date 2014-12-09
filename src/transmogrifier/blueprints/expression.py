@@ -1,13 +1,24 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from email.message import Message
-
-import re
 import importlib
+from zope.interface.common.mapping import IMapping
+from zope.interface.verify import verifyObject
 
 from transmogrifier.blueprints import Blueprint
 from transmogrifier.blueprints import ConditionalBlueprint
 from transmogrifier.expression import Expression
+
+
+def get_expressions(blueprint, blacklist=None):
+    expressions = {}
+    for name, value in blueprint.options.items():
+        if blacklist and name in blacklist:
+            continue
+        expressions[name] = Expression(
+            value or 'python:True',
+            blueprint.transmogrifier, blueprint.name, blueprint.options
+        )
+    return sorted(expressions.items(), key=lambda x: x[0])
 
 
 class ExpressionSource(Blueprint):
@@ -20,43 +31,42 @@ class ExpressionSource(Blueprint):
         for module in modules:
             importlib.import_module(module)
 
-        expression = Expression(
-            self.options.get('expression') or 'python:[{}]',
-            self.transmogrifier, self.name, self.options
-        )
+        expressions = get_expressions(
+            self, ['blueprint', 'modules'])
 
-        key = self.options.get('key')
-        for item in (expression(None) or []):
-            if key:
-                yield {key: item}
-            else:
-                yield item
+        assert expressions, 'No expressions defined'
+
+        is_mapping = lambda ob: verifyObject(IMapping, ob, tentative=True)
+
+        for name, expression in expressions:
+            for item in (expression(None) or []):
+                if name == 'expression' and is_mapping(item):
+                    yield item
+                else:
+                    yield {name: item}
+            break
 
 
 class ExpressionTransform(ConditionalBlueprint):
+
     def __iter__(self):
         modules = filter(bool, map(
             str.strip, self.options.get('modules', '').split()))
         for module in modules:
             importlib.import_module(module)
 
-        expressions = {}
-        for name, value in self.options.items():
-            if name in ['blueprint', 'modules', 'condition']:
-                continue
-            expressions[name] = Expression(
-                value or 'python:True',
-                self.transmogrifier, self.name, self.options
-            )
-        expressions = sorted(expressions.items(), key=lambda x: x[0])
+        expressions = get_expressions(
+            self, ['blueprint', 'modules', 'condition'])
+
+        assert expressions, 'No expressions defined'
 
         for item in self.previous:
-            if self.condition(item):
-                if isinstance(item, dict) or isinstance(item, Message):
-                    for name, expression in expressions:
+            if self.condition(item) and isinstance(item, dict):
+                for name, expression in expressions:
+                    if name.startswith('_'):
+                        expression(item)
+                    else:
                         item[name] = expression(item)
-                elif 'expression' in expressions:
-                    item = expression(item)
             yield item
 
 
@@ -70,21 +80,25 @@ class ExpressionConstructor(ConditionalBlueprint):
         for module in modules:
             importlib.import_module(module)
 
-        expression = Expression(
-            self.options.get('expression') or 'python:True',
-            self.transmogrifier, self.name, self.options
-        )
+        expressions = get_expressions(
+            self, ['blueprint', 'modules', 'condition'])
+
+        assert expressions, 'No expressions defined'
 
         items = []
         for item in self.previous:
             if self.condition(item):
                 items.append(item)
                 if mode in ('each', 'item'):
-                    expression(item, items=items)
+                    for name, expression in expressions:
+                        expression(item, items=items)
+                        break
             yield item
 
         if mode in ('all', 'items'):
-            expression(None, items=items)
+            for name, expression in expressions:
+                expression(None, items=items)
+                break
 
 
 class ExpressionFilter(ConditionalBlueprint):
