@@ -92,25 +92,3 @@ class ExpressionFilter(ConditionalBlueprint):
         for item in self.previous:
             if self.condition(item):
                 yield item
-
-
-# transmogrify/regexp
-# by aclark / GPL2
-
-class RegExpTransform(ConditionalBlueprint):
-    def __iter__(self):
-        try:
-            key = self.options['key']
-            regexp = re.compile(self.options['expression'])
-            strfmt = self.options['format'].replace('%%', '%')
-            order = [int(s.strip()) for s in self.options['order'].split(',')]
-        except KeyError as e:
-            raise SyntaxError('Must specify \'{0:s}\''.format(e))
-
-        for item in self.previous:
-            if self.condition(item):
-                result = regexp.search(item[key])
-                if result and result.groups():
-                    item[key] = \
-                        strfmt % tuple([result.groups()[i] for i in order])
-            yield item

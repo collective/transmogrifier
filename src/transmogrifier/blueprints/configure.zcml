@@ -41,8 +41,8 @@
       />
 
   <transmogrifier:blueprint
-      component="transmogrifier.blueprints.expression.RegExpTransform"
-      name="transmogrifier.regexp"
+      component="transmogrifier.blueprints.data.InvertTransform"
+      name="transmogrifier.invert"
       />
 
   <transmogrifier:blueprint

@@ -7,12 +7,30 @@ from csv import DictReader
 from csv import DictWriter
 import os
 import sys
+import logging
+
+from zope.interface.common.mapping import IMapping
+from zope.interface.verify import verifyObject
 
 from transmogrifier.blueprints import Blueprint
 from transmogrifier.blueprints import ConditionalBlueprint
 
-import logging
+
 logger = logging.getLogger('transmogrifier')
+
+
+class InvertTransform(ConditionalBlueprint):
+    def __iter__(self):
+        key = self.options.get('key')
+        is_mapping = lambda ob: verifyObject(IMapping, ob, tentative=True)
+        for item in self.previous:
+            if self.condition(item) and is_mapping(item.get(key)):
+                inverted = item.pop(key)
+                for key_, value in item.items():
+                    inverted[key_] = value
+                yield inverted
+            else:
+                yield item
 
 
 class CSVSource(Blueprint):
