@@ -219,6 +219,7 @@ Available pipelines
 
     # Transmogrify
     for pipeline in get_pipelines(arguments):
+        retry = False
         try:
             ITransmogrifier(context)(pipeline, **overrides)
         except KeyError:
@@ -228,6 +229,6 @@ Available pipelines
                 configuration_registry.registerConfiguration(
                     name=pipeline, title=pipeline,
                     description='n/a', configuration=path)
-                ITransmogrifier(context)(pipeline, **overrides)
-            else:
-                raise
+                retry = True
+        if retry:
+            ITransmogrifier(context)(pipeline, **overrides)
