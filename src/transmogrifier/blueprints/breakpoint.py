@@ -6,9 +6,6 @@ import pdb
 
 from transmogrifier.blueprints import ConditionalBlueprint
 
-import logging
-logger = logging.getLogger('transmogrifier')
-
 
 class Breakpoint(ConditionalBlueprint):
     pdb = pdb.Pdb()
@@ -16,5 +13,6 @@ class Breakpoint(ConditionalBlueprint):
     def __iter__(self):
         for item in self.previous:
             if self.condition(item):
+                # noinspection PyProtectedMember
                 self.pdb.set_trace(sys._getframe())  # Break!
             yield item

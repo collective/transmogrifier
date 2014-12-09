@@ -9,9 +9,6 @@ from transmogrifier.condition import Condition
 from transmogrifier.interfaces import ISectionBlueprint
 from transmogrifier.interfaces import ISection
 
-import logging
-logger = logging.getLogger('transmogrifier')
-
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
@@ -39,3 +36,6 @@ class ConditionalBlueprint(Blueprint):
             options.get('condition', 'python:True'),
             transmogrifier, name, options
         )
+
+    def __iter__(self):
+        raise NotImplementedError('__iter__')

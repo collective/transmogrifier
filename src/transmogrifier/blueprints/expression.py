@@ -6,11 +6,7 @@ import importlib
 
 from transmogrifier.blueprints import Blueprint
 from transmogrifier.blueprints import ConditionalBlueprint
-
 from transmogrifier.expression import Expression
-
-import logging
-logger = logging.getLogger('transmogrifier')
 
 
 class ExpressionSource(Blueprint):
@@ -99,7 +95,7 @@ class ExpressionFilter(ConditionalBlueprint):
 
 
 # transmogrify/regexp
-# by aclark
+# by aclark / GPL2
 
 class RegExpTransform(ConditionalBlueprint):
     def __iter__(self):
