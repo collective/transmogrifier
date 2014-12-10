@@ -17,7 +17,7 @@ from transmogrifier.utils import is_mapping
 logger = logging.getLogger('transmogrifier')
 
 
-class PopTransform(ConditionalBlueprint):
+class DelTransform(ConditionalBlueprint):
     def __iter__(self):
         keys = [key.strip() for key in self.options.get('keys', '').split()]
         for item in self.previous:

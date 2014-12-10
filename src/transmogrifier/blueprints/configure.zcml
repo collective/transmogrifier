@@ -36,8 +36,8 @@
       />
 
   <transmogrifier:blueprint
-      component="transmogrifier.blueprints.data.PopTransform"
-      name="transmogrifier.pop"
+      component="transmogrifier.blueprints.data.DelTransform"
+      name="transmogrifier.del"
       />
 
   <transmogrifier:blueprint
