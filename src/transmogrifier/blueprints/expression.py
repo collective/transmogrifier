@@ -63,10 +63,7 @@ class ExpressionTransform(ConditionalBlueprint):
         for item in self.previous:
             if self.condition(item) and isinstance(item, dict):
                 for name, expression in expressions:
-                    if name.startswith('__'):
-                        expression(item)
-                    else:
-                        item[name] = expression(item)
+                    item[name] = expression(item)
             yield item
 
 

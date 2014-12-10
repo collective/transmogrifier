@@ -19,6 +19,16 @@ from transmogrifier.blueprints import ConditionalBlueprint
 logger = logging.getLogger('transmogrifier')
 
 
+class PopTransform(ConditionalBlueprint):
+    def __iter__(self):
+        keys = [key.strip() for key in self.options.get('keys', '').split()]
+        for item in self.previous:
+            if self.condition(item):
+                for key in filter(bool, keys):
+                    item.pop(key, None)
+            yield item
+
+
 class InvertTransform(ConditionalBlueprint):
     def __iter__(self):
         key = self.options.get('key')
