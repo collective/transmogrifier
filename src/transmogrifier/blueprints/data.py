@@ -9,11 +9,9 @@ import os
 import sys
 import logging
 
-from zope.interface.common.mapping import IMapping
-from zope.interface.verify import verifyObject
-
 from transmogrifier.blueprints import Blueprint
 from transmogrifier.blueprints import ConditionalBlueprint
+from transmogrifier.utils import is_mapping
 
 
 logger = logging.getLogger('transmogrifier')
@@ -32,7 +30,6 @@ class PopTransform(ConditionalBlueprint):
 class InvertTransform(ConditionalBlueprint):
     def __iter__(self):
         key = self.options.get('key')
-        is_mapping = lambda ob: verifyObject(IMapping, ob, tentative=True)
         for item in self.previous:
             if self.condition(item) and is_mapping(item.get(key)):
                 inverted = item.pop(key)

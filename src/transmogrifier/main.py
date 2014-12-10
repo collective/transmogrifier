@@ -219,18 +219,10 @@ Available pipelines
 
     # Transmogrify
     for pipeline in get_pipelines(arguments):
-        retry = False
-        try:
-            ITransmogrifier(context)(pipeline, **overrides)
-        except KeyError:
-            path = (os.path.isabs(pipeline) and pipeline
-                    or os.path.join(os.getcwd(), pipeline))
-            if os.path.isfile(path):
-                configuration_registry.registerConfiguration(
-                    name=pipeline, title=pipeline,
-                    description='n/a', configuration=path)
-                retry = True
-            else:
-                raise
-        if retry:
-            ITransmogrifier(context)(pipeline, **overrides)
+        path = (os.path.isabs(pipeline) and pipeline
+                or os.path.join(os.getcwd(), pipeline))
+        if os.path.isfile(path):
+            configuration_registry.registerConfiguration(
+                name=pipeline, title=pipeline,
+                description='n/a', configuration=path)
+        ITransmogrifier(context)(pipeline, **overrides)

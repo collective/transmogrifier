@@ -7,6 +7,9 @@ from six import iteritems
 from zope.component import getUtility
 
 from configparser import RawConfigParser
+from zope.interface.common.mapping import IMapping
+from zope.interface.exceptions import BrokenImplementation
+from zope.interface.verify import verifyObject
 from transmogrifier.interfaces import ISection
 from transmogrifier.interfaces import ISectionBlueprint
 from transmogrifier.registry import configuration_registry
@@ -18,6 +21,18 @@ def pformat_msg(obj):
         msg = '\n' + '\n'.join(
             '  ' + line for line in msg.splitlines())
     return msg
+
+
+def is_mapping(item):
+    """Validate that item can acts as a mapping
+    """
+    try:
+        verifyObject(IMapping, item, tentative=True)
+    except BrokenImplementation as e:
+        # Allow mapping to miss __iter__ to support email.message.Message
+        if e.name not in ['__iter__']:
+            raise
+    return True
 
 
 def resolvePackageReference(reference):

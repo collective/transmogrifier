@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import importlib
-from zope.interface.common.mapping import IMapping
-from zope.interface.verify import verifyObject
 
 from transmogrifier.blueprints import Blueprint
 from transmogrifier.blueprints import ConditionalBlueprint
 from transmogrifier.expression import Expression
+from transmogrifier.utils import is_mapping
 
 
 def get_expressions(blueprint, blacklist=None):
@@ -35,8 +34,6 @@ class ExpressionSource(Blueprint):
             self, ['blueprint', 'modules'])
 
         assert expressions, 'No expressions defined'
-
-        is_mapping = lambda ob: verifyObject(IMapping, ob, tentative=True)
 
         for name, expression in expressions:
             for item in (expression(None) or []):
