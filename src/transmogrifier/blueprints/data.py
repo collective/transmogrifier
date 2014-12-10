@@ -22,8 +22,9 @@ class PopTransform(ConditionalBlueprint):
         keys = [key.strip() for key in self.options.get('keys', '').split()]
         for item in self.previous:
             if self.condition(item):
-                for key in filter(bool, keys):
-                    item.pop(key, None)
+                for key in keys:
+                    if key in item:
+                        del item[key]
             yield item
 
 
