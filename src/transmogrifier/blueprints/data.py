@@ -80,7 +80,7 @@ class CSVConstructor(ConditionalBlueprint):
 
         counter = 0
         for item in self.previous:
-            if self.condition(item) and isinstance(item, dict):
+            if self.condition(item) and is_mapping(item):
                 if not writer.fieldnames:
                     writer.fieldnames = [key for key in item.keys()
                                          if not key.startswith('_')]
@@ -88,7 +88,7 @@ class CSVConstructor(ConditionalBlueprint):
                     header = dict(zip(writer.fieldnames, writer.fieldnames))
                     writer.writerow(header)
 
-                clone = item.copy()
+                clone = dict(item)
                 for fieldname in writer.fieldnames:
                     clone.setdefault(fieldname, None)
                 writer.writerow(dict([
