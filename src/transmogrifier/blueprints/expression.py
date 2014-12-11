@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 import importlib
 
-from transmogrifier.blueprints import Blueprint
 from transmogrifier.blueprints import ConditionalBlueprint
 from transmogrifier.expression import Expression
 from transmogrifier.utils import is_mapping
@@ -20,7 +19,7 @@ def get_expressions(blueprint, blacklist=None):
     return sorted(expressions.items(), key=lambda x: x[0])
 
 
-class ExpressionSource(Blueprint):
+class ExpressionSource(ConditionalBlueprint):
     def __iter__(self):
         for item in self.previous:
             yield item
@@ -31,16 +30,18 @@ class ExpressionSource(Blueprint):
             importlib.import_module(module)
 
         expressions = get_expressions(
-            self, ['blueprint', 'modules'])
+            self, ['blueprint', 'modules', 'condition'])
 
         assert expressions, 'No expressions defined'
 
         for name, expression in expressions:
             for item in (expression(None) or []):
                 if name == 'expression' and is_mapping(item):
-                    yield item
+                    if self.condition(item):
+                        yield item
                 else:
-                    yield {name: item}
+                    if self.condition({name: item}):
+                        yield item
             break
 
 
