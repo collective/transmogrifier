@@ -59,7 +59,7 @@ class ExpressionTransform(ConditionalBlueprint):
         assert expressions, 'No expressions defined'
 
         for item in self.previous:
-            if self.condition(item) and isinstance(item, dict):
+            if self.condition(item) and is_mapping(item):
                 for name, expression in expressions:
                     item[name] = expression(item)
             yield item
