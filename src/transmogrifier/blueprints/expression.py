@@ -41,7 +41,7 @@ class ExpressionSource(ConditionalBlueprint):
                         yield item
                 else:
                     if self.condition({name: item}):
-                        yield item
+                        yield {name: item}
             break
 
 
