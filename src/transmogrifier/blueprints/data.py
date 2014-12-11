@@ -53,6 +53,8 @@ class CodecTransform(ConditionalBlueprint):
         for item in self.previous:
             if self.condition(item):
                 for name, value in transforms.items():
+                    if name not in item:
+                        continue
                     if value[0] != 'unicode':
                         if hasattr(item[name], 'decode'):
                             item[name] = item[name].decode(value[0])
