@@ -41,6 +41,26 @@ class InvertTransform(ConditionalBlueprint):
                 yield item
 
 
+class CodecTransform(ConditionalBlueprint):
+    def __iter__(self):
+        transforms = {}
+        for name, value in self.options.items():
+            if name in ['blueprint', 'condition']:
+                continue
+            from_, to_ = [s.strip() for s in value.strip().split(':')]
+            transforms[name] = (from_, to_)
+
+        for item in self.previous:
+            if self.condition(item):
+                for name, value in transforms.items():
+                    if value[0] != 'unicode':
+                        if hasattr(item[name], 'decode'):
+                            item[name] = item[name].decode(value[0])
+                    if value[1] != 'unicode':
+                        item[name] = item[name].encode(value[1])
+            yield item
+
+
 class CSVSource(Blueprint):
     def __iter__(self):
         for item in self.previous:
