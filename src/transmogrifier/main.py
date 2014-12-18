@@ -12,6 +12,7 @@ Usage: transmogrify <pipelines_and_overrides>...
 """
 from __future__ import unicode_literals
 from __future__ import print_function
+from contextlib import contextmanager
 
 import os
 import importlib
@@ -20,6 +21,8 @@ import sys
 
 from docopt import docopt
 from zope.component import getUtilitiesFor
+from zope.component.hooks import getSite
+from zope.component.hooks import setSite
 from zope.configuration import xmlconfig
 from zope.configuration.config import ConfigurationMachine
 from zope.configuration.xmlconfig import registerCommonDirectives
@@ -159,6 +162,16 @@ def configure(arguments):
     config.execute_actions()
 
 
+@contextmanager
+def global_site_manager():
+    site = getSite()
+    if site is not None:
+        setSite()
+    yield
+    if site is not None:
+        setSite(site)
+
+
 def __main__():
     # Enable logging
     logging.basicConfig(level=logging.INFO)
@@ -167,7 +180,8 @@ def __main__():
     arguments = docopt(__doc__, argv=get_argv()[1:])
 
     # Resolve configuration
-    configure(arguments)
+    with global_site_manager():
+        configure(arguments)
 
     # Show registered components
     if arguments.get('--list'):

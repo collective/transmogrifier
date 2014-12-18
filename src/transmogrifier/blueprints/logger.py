@@ -6,7 +6,7 @@ from transmogrifier.utils import Matcher
 from transmogrifier.utils import pformat_msg
 
 
-# collective/transmogrifier/sections/logger.py
+# from collective/transmogrifier/sections/logger.py
 # by rpatterson, regebro
 
 class Logger(ConditionalBlueprint):
