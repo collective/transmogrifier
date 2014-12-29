@@ -102,3 +102,33 @@ class ExpressionFilter(ConditionalBlueprint):
         for item in self.previous:
             if self.condition(item):
                 yield item
+
+
+class IntervalExpression(ConditionalBlueprint):
+    def __iter__(self):
+        modules = filter(bool, map(
+            str.strip, self.options.get('modules', '').split()))
+        for module in modules:
+            importlib.import_module(module)
+
+        expressions = get_expressions(
+            self, ['blueprint', 'modules', 'condition', 'interval'])
+
+        assert expressions, 'No expressions defined'
+
+        counter = interval = int(self.options.get('interval', '1'))
+
+        for item in self.previous:
+            if self.condition(item):
+                counter -= 1
+                if counter == 0:
+                    for name, expression in expressions:
+                        expression(None)
+                        break
+                    counter = interval
+            yield item
+
+        if counter != interval:
+            for name, expression in expressions:
+                expression(None)
+                break
