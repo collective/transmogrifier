@@ -83,10 +83,11 @@ class ExpressionConstructor(ConditionalBlueprint):
         items = []
         for item in self.previous:
             if self.condition(item):
-                items.append(item)
+                if mode in ('all', 'items'):
+                    items.append(item)
                 if mode in ('each', 'item'):
                     for name, expression in expressions:
-                        expression(item, items=items)
+                        expression(item)
                         break
             yield item
 
