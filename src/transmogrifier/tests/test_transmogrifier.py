@@ -1,19 +1,23 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import logging
 
 import os
 import unittest
 import operator
 import doctest
 
+from transmogrifier import Transmogrifier
+
+from transmogrifier.blueprints import Blueprint
 from zope.interface import classImplements
 from zope.component import provideUtility
 from zope.configuration import xmlconfig
-
 from transmogrifier.interfaces import ISectionBlueprint
 from transmogrifier.interfaces import ISection
 from transmogrifier.registry import configuration_registry
 from transmogrifier.testing import TransmogrifierLayer
+from zope.testing.loggingsupport import InstalledHandler
 
 
 class MetaDirectivesTests(unittest.TestCase):
@@ -132,19 +136,19 @@ class InclusionManipulationTests(unittest.TestCase):
             'transmogrifier.tests.included',
             """\
 [foo]
-bar=
+bar =
     monty
     python
 """)
 
     def _loadConfig(self, config):
         from transmogrifier.utils import load_config
-        config = """\
+        full_config = """\
 [transmogrifier]
 include=transmogrifier.tests.included
 """ + config
         self.layer.registerConfiguration('transmogrifier.tests.includer',
-                                         config)
+                                         full_config)
         return load_config('transmogrifier.tests.includer')
 
     def testAdd(self):
@@ -238,7 +242,7 @@ class PackageReferenceResolverTest(unittest.TestCase):
         res = self._resolvePackageReference('transmogrifier:test')
         self.assertEqual(res, os.path.join(self._package_path, 'test'))
 
-    def testNonexistingPackage(self):
+    def testNonExistingPackage(self):
         self.assertRaises(ImportError, self._resolvePackageReference,
                           'transmogrifier.nonexistent:test')
 
@@ -249,10 +253,14 @@ def test_suite():
     suite.addTests((
         doctest.DocFileSuite(
             '../../../docs/transmogrifier.rst',
+            '../../../docs/blueprints/logger.rst',
+            '../../../docs/blueprints/breakpoint.rst',
             setUp=TransmogrifierLayer.testSetUp,
             tearDown=TransmogrifierLayer.testTearDown,
             globs={'registerConfiguration':
-                   TransmogrifierLayer.registerConfiguration},
+                   TransmogrifierLayer.registerConfiguration,
+                   'Transmogrifier': Transmogrifier({}),
+                   'logger': InstalledHandler('logger', level=logging.DEBUG)},
             optionflags=doctest.NORMALIZE_WHITESPACE),
     ))
     return suite
