@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import logging
-
 import os
 import unittest
 import operator
 import doctest
 
 from transmogrifier import Transmogrifier
-
-from transmogrifier.blueprints import Blueprint
 from zope.interface import classImplements
 from zope.component import provideUtility
 from zope.configuration import xmlconfig
