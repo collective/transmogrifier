@@ -31,9 +31,8 @@ setup(
         'zope.component',
         'zope.configuration',
     ],
-    extras_require={'test': [
-        'zope.testing'
-    ]},
+    extras_require={'path': ['z3c.pt'],
+                    'test': ['zope.testing']},
     entry_points={
         'console_scripts': [
             'transmogrify=transmogrifier:__main__'
