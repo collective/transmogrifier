@@ -22,7 +22,10 @@ class Logger(ConditionalBlueprint):
 
         # Set log level
         level = self.options.get('level', logging.getLevelName(logger.level))
-        level = getattr(logging, level, None) or int(level)
+        if level != 'NOTSET':
+            level = getattr(logging, level, None) or int(level)
+        else:
+            level = int(logging.INFO)
         logger.setLevel(level)
 
         for item in self.previous:
