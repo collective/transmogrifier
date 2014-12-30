@@ -24,11 +24,11 @@ A logger section lets you log a piece of data from the item together with a name
     >>> Transmogrifier('transmogrifier.tests.logger.a')
     >>> print(logger)
     logger INFO
-      'item-00'
+      item-00
     logger INFO
-      'item-01'
+      item-01
     logger INFO
-      'item-02'
+      item-02
     >>> logger.clear()
 
 We can also have numerical levels, and if the key is missing, it will print out a message to that effect. A condition may also be used to restrict the items logged.
