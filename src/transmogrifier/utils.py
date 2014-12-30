@@ -4,6 +4,7 @@ import re
 import pprint
 
 from six import iteritems
+from six import StringIO
 from zope.component import getUtility
 
 from configparser import RawConfigParser
@@ -16,11 +17,9 @@ from transmogrifier.registry import configuration_registry
 
 
 def pformat_msg(obj):
-    msg = pprint.pformat(obj)
-    if '\n' in msg:
-        msg = '\n' + '\n'.join(
-            '  ' + line for line in msg.splitlines())
-    return msg
+    fp = StringIO()
+    pprint.pprint(obj, fp)
+    return fp.getvalue()
 
 
 def is_mapping(item):
