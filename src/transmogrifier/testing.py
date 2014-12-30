@@ -57,7 +57,7 @@ class TransmogrifierLayer(object):
         configuration_registry.registerConfiguration(
             name=name,
             title="Pipeline configuration '{0:s}' from "
-                  "'collective.transmogrifier.tests'".format(name),
+                  "'transmogrifier.tests'".format(name),
             description='',
             configuration=filename
         )
