@@ -41,6 +41,16 @@ class InvertTransform(ConditionalBlueprint):
                 yield item
 
 
+class WrapTransform(ConditionalBlueprint):
+    def __iter__(self):
+        key = self.options.get('key')
+        for item in self.previous:
+            if self.condition(item) and key is not None:
+                yield {key: item}
+            else:
+                yield item
+
+
 class CodecTransform(ConditionalBlueprint):
     def __iter__(self):
         transforms = {}

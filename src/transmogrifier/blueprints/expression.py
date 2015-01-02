@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 import importlib
 
 from transmogrifier.blueprints import ConditionalBlueprint
@@ -7,6 +8,25 @@ from transmogrifier.expression import Expression
 from transmogrifier.utils import is_mapping
 
 from zope.interface.exceptions import BrokenImplementation
+
+import pkg_resources
+
+try:
+    pkg_resources.get_distribution('Acquisition')
+except pkg_resources.DistributionNotFound:
+    HAS_ACQUISITION = False
+else:
+    import Acquisition
+    HAS_ACQUISITION = True
+
+
+def unwrap(item):
+    """Unwrap objects from known wrappings"""
+    if HAS_ACQUISITION:
+        # noinspection PyUnresolvedReferences
+        return Acquisition.aq_base(item)
+    else:
+        return item
 
 
 def get_expressions(blueprint, blacklist=None):
@@ -40,7 +60,7 @@ class ExpressionSource(ConditionalBlueprint):
         for name, expression in expressions:
             for item in (expression(None) or []):
                 try:
-                    if is_mapping(item):
+                    if is_mapping(unwrap(item)):
                         if self.condition(item):
                             yield item
                 except BrokenImplementation:
