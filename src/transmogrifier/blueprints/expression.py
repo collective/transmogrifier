@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import importlib
 
+from transmogrifier.blueprints import Blueprint
 from transmogrifier.blueprints import ConditionalBlueprint
 from transmogrifier.expression import Expression
 from transmogrifier.utils import is_mapping
@@ -109,32 +110,26 @@ class ExpressionTransform(ConditionalBlueprint):
             yield item
 
 
-class ExpressionFilterAnd(ConditionalBlueprint):
+class ExpressionFilterAnd(Blueprint):
     """Filter items by expressions (AND)"""
     def __iter__(self):
-        expressions = get_expressions(
-            self, ['blueprint', 'modules', 'condition'])
-        expressions += [('condition', self.condition)]
-
+        expressions = get_expressions(self, ['blueprint', 'modules'])
         for item in self.previous:
             try:
                 for name, expression in expressions:
-                    assert expression(item)
+                    assert bool(expression(item)), 'Condition failed'
                 yield item
             except AssertionError:
                 pass
 
 
-class ExpressionFilterOr(ConditionalBlueprint):
+class ExpressionFilterOr(Blueprint):
     """Filter items by expressions (OR)"""
     def __iter__(self):
-        expressions = get_expressions(
-            self, ['blueprint', 'modules', 'condition'])
-        expressions += [('condition', self.condition)]
-
+        expressions = get_expressions(self, ['blueprint', 'modules'])
         for item in self.previous:
             for name, expression in expressions:
-                if expression(item):
+                if bool(expression(item)):
                     yield item
                     break
 
