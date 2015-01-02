@@ -117,10 +117,12 @@ class ExpressionFilterAnd(ConditionalBlueprint):
         expressions += [('condition', self.condition)]
 
         for item in self.previous:
-            for name, expression in expressions:
-                if not expression(item):
-                    break
-            yield item
+            try:
+                for name, expression in expressions:
+                    assert expression(item)
+                yield item
+            except AssertionError:
+                pass
 
 
 class ExpressionFilterOr(ConditionalBlueprint):
