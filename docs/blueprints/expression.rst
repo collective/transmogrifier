@@ -85,11 +85,11 @@ If expression does not return a mapping, the result is wrapped into a mapping.
     >>> Transmogrifier('transmogrifier.tests.expression.c')
     >>> print(logger)
     logger INFO
-      {'id': 0, 'title': 'item-0'}
+      {'id': 0, 'title': ...'item-0'}
     logger INFO
-      {'id': 1, 'title': 'item-1'}
+      {'id': 1, 'title': ...'item-1'}
     logger INFO
-      {'id': 2, 'title': 'item-2'}
+      {'id': 2, 'title': ...'item-2'}
     >>> logger.clear()
 
 ``transmogrifier.transform`` just executes expression, which may mutate the item or perform construction with it, but does not set new key from the results.

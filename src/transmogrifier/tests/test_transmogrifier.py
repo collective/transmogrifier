@@ -259,6 +259,6 @@ def test_suite():
                    TransmogrifierLayer.registerConfiguration,
                    'Transmogrifier': Transmogrifier({}),
                    'logger': InstalledHandler('logger', level=logging.DEBUG)},
-            optionflags=doctest.NORMALIZE_WHITESPACE),
+            optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS),
     ))
     return suite
