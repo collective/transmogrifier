@@ -34,7 +34,7 @@
       component="transmogrifier.blueprints.expression.ExpressionFilterAnd"
       name="transmogrifier.filter"
       />
-  j
+
   <transmogrifier:blueprint
       component="transmogrifier.blueprints.expression.ExpressionFilterAnd"
       name="transmogrifier.filter.and"
