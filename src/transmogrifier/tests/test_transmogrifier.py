@@ -252,6 +252,7 @@ def test_suite():
             '../../../docs/transmogrifier.rst',
             '../../../docs/blueprints/logger.rst',
             '../../../docs/blueprints/breakpoint.rst',
+            '../../../docs/blueprints/expression.rst',
             setUp=TransmogrifierLayer.testSetUp,
             tearDown=TransmogrifierLayer.testTearDown,
             globs={'registerConfiguration':

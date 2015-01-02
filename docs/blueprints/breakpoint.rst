@@ -13,7 +13,7 @@ The alternative is to add a conditional breakpoint in the section that fails, bu
     ...     logger
     ...
     ... [source]
-    ... blueprint = transmogrifier.from_expression
+    ... blueprint = transmogrifier.from
     ... expression = [{'id': 'item-{0:02d}'.format(i)}
     ...               for i in range(3)]
     ...

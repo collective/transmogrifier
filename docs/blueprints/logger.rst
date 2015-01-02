@@ -10,7 +10,7 @@ A logger section lets you log a piece of data from the item together with a name
     ...     logger
     ...
     ... [source]
-    ... blueprint = transmogrifier.from_expression
+    ... blueprint = transmogrifier.from
     ... expression = [{'id': 'item-{0:02d}'.format(i)}
     ...               for i in range(3)]
     ...
@@ -40,7 +40,7 @@ We can also have numerical levels, and if the key is missing, it will print out 
     ...     logger
     ...
     ... [source]
-    ... blueprint = transmogrifier.from_expression
+    ... blueprint = transmogrifier.from
     ... expression = [{'id': 'item-{0:02d}'.format(i)}
     ...               for i in range(3)]
     ...
@@ -70,7 +70,7 @@ If no ``key`` option is given, the logger will render the whole item in a readab
     ...     logger
     ...
     ... [source]
-    ... blueprint = transmogrifier.from_expression
+    ... blueprint = transmogrifier.from
     ... expression = [{'id': 'item-{0:02d}'.format(i)}
     ...               for i in range(3)]
     ...

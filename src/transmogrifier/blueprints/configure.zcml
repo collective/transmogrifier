@@ -17,31 +17,36 @@
 
   <transmogrifier:blueprint
       component="transmogrifier.blueprints.expression.ExpressionSource"
-      name="transmogrifier.from_expression"
+      name="transmogrifier.from"
       />
 
   <transmogrifier:blueprint
-      component="transmogrifier.blueprints.expression.ExpressionConstructor"
-      name="transmogrifier.to_expression"
-      />
-
-  <transmogrifier:blueprint
-      component="transmogrifier.blueprints.expression.ExpressionTransform"
-      name="transmogrifier.expression"
-      />
-
-  <transmogrifier:blueprint
-      component="transmogrifier.blueprints.expression.ExpressionTransform"
+      component="transmogrifier.blueprints.expression.ExpressionSetter"
       name="transmogrifier.set"
       />
 
   <transmogrifier:blueprint
-      component="transmogrifier.blueprints.expression.ExpressionFilter"
-      name="transmogrifier.filter"
+      component="transmogrifier.blueprints.expression.ExpressionTransform"
+      name="transmogrifier.transform"
       />
 
   <transmogrifier:blueprint
-      component="transmogrifier.blueprints.expression.IntervalExpression"
+      component="transmogrifier.blueprints.expression.ExpressionFilterAnd"
+      name="transmogrifier.filter"
+      />
+  j
+  <transmogrifier:blueprint
+      component="transmogrifier.blueprints.expression.ExpressionFilterAnd"
+      name="transmogrifier.filter.and"
+      />
+
+  <transmogrifier:blueprint
+      component="transmogrifier.blueprints.expression.ExpressionFilterOr"
+      name="transmogrifier.filter.or"
+      />
+
+  <transmogrifier:blueprint
+      component="transmogrifier.blueprints.expression.ExpressionInterval"
       name="transmogrifier.interval"
       />
 

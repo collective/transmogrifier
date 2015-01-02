@@ -6,6 +6,8 @@ from transmogrifier.blueprints import ConditionalBlueprint
 from transmogrifier.expression import Expression
 from transmogrifier.utils import is_mapping
 
+from zope.interface.exceptions import BrokenImplementation
+
 
 def get_expressions(blueprint, blacklist=None):
     expressions = {}
@@ -20,6 +22,7 @@ def get_expressions(blueprint, blacklist=None):
 
 
 class ExpressionSource(ConditionalBlueprint):
+    """Generate items from expressions result"""
     def __iter__(self):
         for item in self.previous:
             yield item
@@ -36,17 +39,18 @@ class ExpressionSource(ConditionalBlueprint):
 
         for name, expression in expressions:
             for item in (expression(None) or []):
-                if name == 'expression' and is_mapping(item):
-                    if self.condition(item):
-                        yield item
-                else:
+                try:
+                    if is_mapping(item):
+                        if self.condition(item):
+                            yield item
+                except BrokenImplementation:
                     if self.condition({name: item}):
                         yield {name: item}
             break
 
 
-class ExpressionTransform(ConditionalBlueprint):
-
+class ExpressionSetter(ConditionalBlueprint):
+    """Set item keys from expressions result"""
     def __iter__(self):
         modules = filter(bool, map(
             str.strip, self.options.get('modules', '').split()))
@@ -65,11 +69,9 @@ class ExpressionTransform(ConditionalBlueprint):
             yield item
 
 
-class ExpressionConstructor(ConditionalBlueprint):
+class ExpressionTransform(ConditionalBlueprint):
+    """Executes expressions with items allowing transform or construction"""
     def __iter__(self):
-        mode = self.options.get('mode', 'item')
-        assert mode in ('each', 'all', 'item', 'items')
-
         modules = filter(bool, map(
             str.strip, self.options.get('modules', '').split()))
         for module in modules:
@@ -80,31 +82,43 @@ class ExpressionConstructor(ConditionalBlueprint):
 
         assert expressions, 'No expressions defined'
 
-        items = []
         for item in self.previous:
             if self.condition(item):
-                if mode in ('all', 'items'):
-                    items.append(item)
-                if mode in ('each', 'item'):
-                    for name, expression in expressions:
-                        expression(item)
-                        break
+                for name, expression in expressions:
+                    expression(item)
             yield item
 
-        if mode in ('all', 'items'):
-            for name, expression in expressions:
-                expression(None, items=items)
-                break
 
-
-class ExpressionFilter(ConditionalBlueprint):
+class ExpressionFilterAnd(ConditionalBlueprint):
+    """Filter items by expressions (AND)"""
     def __iter__(self):
+        expressions = get_expressions(
+            self, ['blueprint', 'modules', 'condition'])
+        expressions += [('condition', self.condition)]
+
         for item in self.previous:
-            if self.condition(item):
-                yield item
+            for name, expression in expressions:
+                if not expression(item):
+                    break
+            yield item
 
 
-class IntervalExpression(ConditionalBlueprint):
+class ExpressionFilterOr(ConditionalBlueprint):
+    """Filter items by expressions (OR)"""
+    def __iter__(self):
+        expressions = get_expressions(
+            self, ['blueprint', 'modules', 'condition'])
+        expressions += [('condition', self.condition)]
+
+        for item in self.previous:
+            for name, expression in expressions:
+                if expression(item):
+                    yield item
+                    break
+
+
+class ExpressionInterval(ConditionalBlueprint):
+    """Perform standalone expressions by defined interval"""
     def __iter__(self):
         modules = filter(bool, map(
             str.strip, self.options.get('modules', '').split()))
@@ -124,11 +138,9 @@ class IntervalExpression(ConditionalBlueprint):
                 if counter == 0:
                     for name, expression in expressions:
                         expression(None)
-                        break
                     counter = interval
             yield item
 
         if counter != interval:
             for name, expression in expressions:
                 expression(None)
-                break

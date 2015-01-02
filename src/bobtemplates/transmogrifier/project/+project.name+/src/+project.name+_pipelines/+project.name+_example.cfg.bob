@@ -11,7 +11,7 @@ blueprint = {{{project.name}}}.mock_contacts
 amount = 2
 
 [to_upper]
-blueprint = transmogrifier.expression
+blueprint = transmogrifier.set
 name = python:item['name'].upper()
 address = python:item['address'].upper()
 
