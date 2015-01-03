@@ -14,8 +14,8 @@ Filter sections
     ...
     ... [filter]
     ... blueprint = transmogrifier.filter
-    ... lower = item['id'] > 4
-    ... upper = item['id'] < 6
+    ... is_greater_than = item['id'] > 4
+    ... is_lower_than = item['id'] < 6
     ...
     ... [logger]
     ... blueprint = transmogrifier.logger
@@ -42,8 +42,8 @@ Filter sections
     ...
     ... [filter]
     ... blueprint = transmogrifier.filter.and
-    ... lower = item['id'] > 4
-    ... upper = item['id'] < 6
+    ... is_greater_than = item['id'] > 4
+    ... is_lower_than = item['id'] < 6
     ...
     ... [logger]
     ... blueprint = transmogrifier.logger
@@ -70,8 +70,8 @@ Filter sections
     ...
     ... [filter]
     ... blueprint = transmogrifier.filter.or
-    ... lower = item['id'] > 4
-    ... even = item['id'] % 2 == 0
+    ... is_greater_than = item['id'] > 4
+    ... is_even = item['id'] % 2 == 0
     ...
     ... [logger]
     ... blueprint = transmogrifier.logger
