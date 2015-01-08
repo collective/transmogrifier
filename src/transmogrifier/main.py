@@ -165,6 +165,21 @@ def configure(arguments):
     config.execute_actions()
 
 
+def resolve(pipeline):
+    resolved = load_config(pipeline)
+    parsed = RawConfigParser(dict_type=OrderedDict)
+    parsed.add_section('transmogrifier')
+    for key in sorted(resolved.get('transmogrifier')):
+        parsed.set('transmogrifier', key, resolved['transmogrifier'][key])
+    for section in sorted(resolved.keys()):
+        if section == 'transmogrifier':
+            continue
+    parsed.add_section(section)
+    for key in sorted(resolved.get(section)):
+        parsed.set(section, key, resolved[section][key])
+    return resolved
+
+
 @contextmanager
 def global_site_manager():
     site = getSite()
@@ -220,21 +235,10 @@ Available pipelines
             else:
                 raise
 
-        config = load_config(pipeline)
-        parsed = RawConfigParser(dict_type=OrderedDict)
-        parsed.add_section('transmogrifier')
-        for key in sorted(config.get('transmogrifier')):
-            parsed.set('transmogrifier', key, config['transmogrifier'][key])
-        for section in sorted(config.keys()):
-            if section == 'transmogrifier':
-                continue
-            parsed.add_section(section)
-            for key in sorted(config.get(section)):
-                parsed.set(section, key, config[section][key])
         output = BytesIO()
-        parsed.write(output)
-
+        resolve(pipeline).write(output)
         print(output.getvalue())
+
         return
 
     # Load optional overrides
