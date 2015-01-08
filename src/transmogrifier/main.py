@@ -166,17 +166,18 @@ def configure(arguments):
 
 
 def resolve(pipeline):
-    resolved = load_config(pipeline)
-    parsed = RawConfigParser(dict_type=OrderedDict)
-    parsed.add_section('transmogrifier')
-    for key in sorted(resolved.get('transmogrifier')):
-        parsed.set('transmogrifier', key, resolved['transmogrifier'][key])
-    for section in sorted(resolved.keys()):
-        if section == 'transmogrifier':
+    config = load_config(pipeline)
+    resolved = RawConfigParser(dict_type=OrderedDict)
+    resolved.add_section('transmogrifier')
+    for key in sorted(config.get('transmogrifier')):
+        resolved.set('transmogrifier', key, config['transmogrifier'][key])
+    sections = resolved.get('transmogrifier', 'pipeline').split()
+    for section in sorted(config.keys()):
+        if section not in sections:
             continue
-    parsed.add_section(section)
-    for key in sorted(resolved.get(section)):
-        parsed.set(section, key, resolved[section][key])
+        resolved.add_section(section)
+        for key in sorted(config.get(section)):
+            resolved.set(section, key, config[section][key])
     return resolved
 
 
