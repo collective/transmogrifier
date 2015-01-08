@@ -20,6 +20,8 @@ import logging
 import sys
 
 from docopt import docopt
+from future.moves.collections import OrderedDict
+from six import BytesIO
 from zope.component import getUtilitiesFor
 from zope.component.hooks import getSite
 from zope.component.hooks import setSite
@@ -32,6 +34,7 @@ from configparser import RawConfigParser
 from transmogrifier.interfaces import ISectionBlueprint
 from transmogrifier.interfaces import ITransmogrifier
 from transmogrifier.registry import configuration_registry
+from transmogrifier.utils import load_config
 
 from pkg_resources import get_distribution
 from pkg_resources import DistributionNotFound
@@ -206,17 +209,32 @@ Available pipelines
     if arguments.get('--show'):
         pipeline = arguments.get('--show')
         try:
-            filename = configuration_registry.getConfiguration(
-                pipeline)['configuration']
+            configuration_registry.getConfiguration(pipeline)
         except KeyError:
             path = (os.path.isabs(pipeline) and pipeline
                     or os.path.join(os.getcwd(), pipeline))
             if os.path.isfile(path):
-                filename = path
+                configuration_registry.registerConfiguration(
+                    name=pipeline, title=pipeline,
+                    description='n/a', configuration=path)
             else:
                 raise
-        with open(filename, 'r') as fp:
-            print(fp.read())
+
+        config = load_config(pipeline)
+        parsed = RawConfigParser(dict_type=OrderedDict)
+        parsed.add_section('transmogrifier')
+        for key in sorted(config.get('transmogrifier')):
+            parsed.set('transmogrifier', key, config['transmogrifier'][key])
+        for section in sorted(config.keys()):
+            if section == 'transmogrifier':
+                continue
+            parsed.add_section(section)
+            for key in sorted(config.get(section)):
+                parsed.set(section, key, config[section][key])
+        output = BytesIO()
+        parsed.write(output)
+
+        print(output.getvalue())
         return
 
     # Load optional overrides
