@@ -6,6 +6,11 @@
   <include package="transmogrifier" file="meta.zcml" />
 
   <transmogrifier:blueprint
+      component="transmogrifier.blueprints.pipeline.Pipeline"
+      name="transmogrifier.pipeline"
+      />
+
+  <transmogrifier:blueprint
       component="transmogrifier.blueprints.breakpoint.Breakpoint"
       name="transmogrifier.breakpoint"
       />

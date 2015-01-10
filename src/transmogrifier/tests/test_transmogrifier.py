@@ -251,6 +251,7 @@ def test_suite():
         doctest.DocFileSuite(
             '../../../docs/transmogrifier.rst',
             '../../../docs/blueprints/logger.rst',
+            '../../../docs/blueprints/pipeline.rst',
             '../../../docs/blueprints/breakpoint.rst',
             '../../../docs/blueprints/expression.rst',
             '../../../docs/blueprints/filter.rst',
