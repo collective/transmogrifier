@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from operator import methodcaller
 import os.path
 import re
 import pprint
@@ -34,6 +35,18 @@ def is_mapping(item):
     return True
 
 
+def get_words(value):
+    """Return non-zero whitespace separated parts"""
+    return list(filter(bool, map(methodcaller('strip'),
+                                 (value or '').split())))
+
+
+def get_lines(value):
+    """Return non-zero new line separated parts"""
+    return list(filter(bool, map(methodcaller('strip'),
+                                 (value or '').splitlines())))
+
+
 def resolvePackageReference(reference):
     """Given a package:filename reference, return the filesystem path
 
@@ -57,14 +70,11 @@ def constructPipeline(transmogrifier, sections, pipeline=None):
         pipeline = iter(())  # empty starter section
 
     for section_id in sections:
-        section_id = section_id.strip()
-        if not section_id:
-            continue
         section_options = transmogrifier[section_id]
         blueprint_id = section_options['blueprint']
         blueprint = getUtility(ISectionBlueprint, blueprint_id)
-        pipeline = blueprint(transmogrifier, section_id, section_options,
-                             pipeline)
+        pipeline = blueprint(transmogrifier, section_id,
+                             section_options, pipeline)
         if not ISection.providedBy(pipeline):
             raise ValueError('Blueprint %s for section %s did not return '
                              'an ISection' % (blueprint_id, section_id))
@@ -96,7 +106,7 @@ def defaultKeys(blueprint, section, key=None):
     return keys
 
 
-def defaultMatcher(options, optionname, section, key=None, extra=()):
+def defaultMatcher(options, option_name, section, key=None, extra=()):
     """Create a Matcher from an option, with a defaultKeys fallback
 
     If optionname is present in options, that option is used to create a
@@ -107,8 +117,8 @@ def defaultMatcher(options, optionname, section, key=None, extra=()):
     keys in extra are also considered part of the default keys.
 
     """
-    if optionname in options:
-        keys = options[optionname].splitlines()
+    if option_name in options:
+        keys = get_lines(options[option_name])
     else:
         keys = defaultKeys(options['blueprint'], section, key)
         for key in extra:
@@ -214,8 +224,8 @@ def update_section(section, included):
         if option in keys:
             raise ValueError('Option %s specified twice', option)
         included[option] = '\n'.join([
-            v for v in included.get(option, '').splitlines()
-            if v and v not in section[key].splitlines()])
+            v for v in get_lines(included.get(option))
+            if v not in get_lines(section[key])])
         del section[key]
 
     for key in add:
@@ -224,8 +234,7 @@ def update_section(section, included):
             raise ValueError('Option %s specified twice', option)
         included[option] = '\n'.join([
             v for v in
-            included.get(option, '').splitlines() + section[key].splitlines()
-            if v
+            get_lines(included.get(option)) + get_lines(section[key])
         ])
         del section[key]
 

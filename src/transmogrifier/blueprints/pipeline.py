@@ -5,6 +5,7 @@ from zope.component import getUtility
 from transmogrifier.blueprints import ConditionalBlueprint
 from transmogrifier.interfaces import ISection
 from transmogrifier.interfaces import ISectionBlueprint
+from transmogrifier.utils import get_lines
 
 
 class Buffer(object):
@@ -22,8 +23,7 @@ class Buffer(object):
 
 class Pipeline(ConditionalBlueprint):
     def __iter__(self):
-        sections = [s.strip() for s in
-                    self.options.get('pipeline', '').splitlines()]
+        sections = get_lines(self.options.get('pipeline'))
         buffer = Buffer()
         pipeline = []
 

@@ -3,6 +3,7 @@ import logging
 
 from transmogrifier.blueprints import ConditionalBlueprint
 from transmogrifier.utils import Matcher
+from transmogrifier.utils import get_words
 from transmogrifier.utils import pformat_msg
 
 
@@ -13,7 +14,7 @@ class Logger(ConditionalBlueprint):
     def __iter__(self):
         # Get options
         key = self.options.get('key')
-        delete = Matcher(*self.options.get('delete', '').splitlines())
+        delete = Matcher(*get_words(self.options.get('delete')))
 
         # Define logger
         name = self.options.get(

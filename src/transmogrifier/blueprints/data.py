@@ -5,6 +5,7 @@ from io import StringIO
 from io import BytesIO
 from csv import DictReader
 from csv import DictWriter
+from operator import methodcaller
 import os
 import sys
 import logging
@@ -12,6 +13,7 @@ import logging
 from transmogrifier.blueprints import Blueprint
 from transmogrifier.blueprints import ConditionalBlueprint
 from transmogrifier.utils import is_mapping
+from transmogrifier.utils import get_words
 
 
 logger = logging.getLogger('transmogrifier')
@@ -19,7 +21,7 @@ logger = logging.getLogger('transmogrifier')
 
 class DelTransform(ConditionalBlueprint):
     def __iter__(self):
-        keys = [key.strip() for key in self.options.get('keys', '').split()]
+        keys = get_words(self.options.get('keys'))
         for item in self.previous:
             if self.condition(item):
                 for key in keys:
@@ -57,7 +59,7 @@ class CodecTransform(ConditionalBlueprint):
         for name, value in self.options.items():
             if name in ['blueprint', 'condition']:
                 continue
-            from_, to_ = [s.strip() for s in value.strip().split(':')]
+            from_, to_ = map(methodcaller('strip'), value.split(':', 1))
             transforms[name] = (from_, to_)
 
         for item in self.previous:
@@ -99,7 +101,7 @@ class CSVSource(Blueprint):
 class CSVConstructor(ConditionalBlueprint):
     def __iter__(self):  # flake8: noqa
         path = self.options.get('filename', 'output.csv').strip()
-        fieldnames = filter(bool, self.options.get('fieldnames', '').split())
+        fieldnames = get_words(self.options.get('fieldnames'))
 
         if path != '-' and not os.path.isabs(path):
             path = os.path.join(os.getcwd(), path)

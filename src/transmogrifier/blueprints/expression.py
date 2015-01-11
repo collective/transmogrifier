@@ -7,6 +7,7 @@ from transmogrifier.blueprints import Blueprint
 from transmogrifier.blueprints import ConditionalBlueprint
 from transmogrifier.expression import Expression
 from transmogrifier.utils import is_mapping
+from transmogrifier.utils import get_words
 
 from zope.interface.exceptions import BrokenImplementation
 
@@ -42,17 +43,18 @@ def get_expressions(blueprint, blacklist=None):
     return sorted(expressions.items(), key=lambda x: x[0])
 
 
+def import_modules(modules):
+    for module in modules:
+        importlib.import_module(module)
+
+
 class ExpressionSource(ConditionalBlueprint):
     """Generate items from expressions result"""
     def __iter__(self):
         for item in self.previous:
             yield item
 
-        modules = filter(bool, map(
-            str.strip, self.options.get('modules', '').split()))
-        for module in modules:
-            importlib.import_module(module)
-
+        import_modules(get_words(self.options.get('modules')))
         expressions = get_expressions(
             self, ['blueprint', 'modules', 'condition'])
 
@@ -73,10 +75,7 @@ class ExpressionSource(ConditionalBlueprint):
 class ExpressionSetter(ConditionalBlueprint):
     """Set item keys from expressions result"""
     def __iter__(self):
-        modules = filter(bool, map(
-            str.strip, self.options.get('modules', '').split()))
-        for module in modules:
-            importlib.import_module(module)
+        import_modules(get_words(self.options.get('modules')))
 
         expressions = get_expressions(
             self, ['blueprint', 'modules', 'condition'])
@@ -93,10 +92,7 @@ class ExpressionSetter(ConditionalBlueprint):
 class ExpressionTransform(ConditionalBlueprint):
     """Executes expressions with items allowing transform or construction"""
     def __iter__(self):
-        modules = filter(bool, map(
-            str.strip, self.options.get('modules', '').split()))
-        for module in modules:
-            importlib.import_module(module)
+        import_modules(get_words(self.options.get('modules')))
 
         expressions = get_expressions(
             self, ['blueprint', 'modules', 'condition'])
@@ -137,10 +133,7 @@ class ExpressionFilterOr(Blueprint):
 class ExpressionInterval(ConditionalBlueprint):
     """Perform standalone expressions by defined interval"""
     def __iter__(self):
-        modules = filter(bool, map(
-            str.strip, self.options.get('modules', '').split()))
-        for module in modules:
-            importlib.import_module(module)
+        import_modules(get_words(self.options.get('modules')))
 
         expressions = get_expressions(
             self, ['blueprint', 'modules', 'condition', 'interval'])

@@ -35,6 +35,7 @@ from transmogrifier.interfaces import ISectionBlueprint
 from transmogrifier.interfaces import ITransmogrifier
 from transmogrifier.registry import configuration_registry
 from transmogrifier.utils import load_config
+from transmogrifier.utils import get_lines
 
 from pkg_resources import get_distribution
 from pkg_resources import DistributionNotFound
@@ -171,7 +172,7 @@ def resolve(pipeline):
     resolved.add_section('transmogrifier')
     for key in sorted(config.get('transmogrifier')):
         resolved.set('transmogrifier', key, config['transmogrifier'][key])
-    sections = resolved.get('transmogrifier', 'pipeline').split()
+    sections = get_lines(resolved.get('transmogrifier', 'pipeline'))
     for section in sorted(config.keys()):
         if section not in sections:
             continue

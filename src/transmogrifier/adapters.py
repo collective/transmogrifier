@@ -9,6 +9,7 @@ from future.moves.collections import UserDict
 from transmogrifier.interfaces import ITransmogrifier
 from transmogrifier.options import Options
 from transmogrifier.utils import load_config
+from transmogrifier.utils import get_lines
 from transmogrifier.utils import constructPipeline
 
 
@@ -16,6 +17,7 @@ from transmogrifier.utils import constructPipeline
 @adapter(Interface)
 class Transmogrifier(UserDict):
 
+    # noinspection PyMissingConstructor
     def __init__(self, context):
         self.context = context
         self._data = {}
@@ -27,10 +29,11 @@ class Transmogrifier(UserDict):
         self.data = {}
 
         options = self._data['transmogrifier']
-        sections = options['pipeline'].splitlines()
+        sections = get_lines(options['pipeline'])
         pipeline = constructPipeline(self, sections)
 
         # Pipeline execution
+        # noinspection PyUnusedLocal
         for item in pipeline:
             pass  # discard once processed
 
