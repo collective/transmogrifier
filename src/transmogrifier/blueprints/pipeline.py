@@ -45,7 +45,7 @@ class Pipeline(ConditionalBlueprint):
                                  'an ISection' % (blueprint_id, section_id))
 
         for item in self.previous:
-            if self.condition(item):
+            if pipeline and self.condition(item):
                 buffer.push(item)
                 for sub_item in iter(pipeline):
                     yield sub_item
