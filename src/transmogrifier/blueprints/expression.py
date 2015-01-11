@@ -31,10 +31,12 @@ def unwrap(item):
         return item
 
 
-def get_expressions(blueprint, blacklist=None):
+def get_expressions(blueprint, whitelist=None, blacklist=None):
     expressions = {}
+    in_whitelist = lambda x: not whitelist or x in whitelist
+    in_blacklist = lambda x: blacklist and x in blacklist
     for name, value in blueprint.options.items():
-        if blacklist and name in blacklist:
+        if in_blacklist(name) or not in_whitelist(name):
             continue
         expressions[name] = Expression(
             value or 'python:True',
@@ -56,8 +58,9 @@ class ExpressionSource(ConditionalBlueprint):
 
         import_modules(get_words(self.options.get('modules')))
         expressions = get_expressions(
-            self, ['blueprint', 'modules', 'condition'])
-
+            self, get_words(self.options.get('expressions')),
+            ['blueprint', 'modules', 'condition', 'expressions']
+        )
         assert expressions, 'No expressions defined'
 
         for name, expression in expressions:
@@ -76,10 +79,10 @@ class ExpressionSetter(ConditionalBlueprint):
     """Set item keys from expressions result"""
     def __iter__(self):
         import_modules(get_words(self.options.get('modules')))
-
         expressions = get_expressions(
-            self, ['blueprint', 'modules', 'condition'])
-
+            self, get_words(self.options.get('expressions')),
+            ['blueprint', 'modules', 'condition', 'expressions']
+        )
         assert expressions, 'No expressions defined'
 
         for item in self.previous:
@@ -93,10 +96,10 @@ class ExpressionTransform(ConditionalBlueprint):
     """Executes expressions with items allowing transform or construction"""
     def __iter__(self):
         import_modules(get_words(self.options.get('modules')))
-
         expressions = get_expressions(
-            self, ['blueprint', 'modules', 'condition'])
-
+            self, get_words(self.options.get('expressions')),
+            ['blueprint', 'modules', 'condition', 'expressions']
+        )
         assert expressions, 'No expressions defined'
 
         for item in self.previous:
@@ -109,7 +112,12 @@ class ExpressionTransform(ConditionalBlueprint):
 class ExpressionFilterAnd(Blueprint):
     """Filter items by expressions (AND)"""
     def __iter__(self):
-        expressions = get_expressions(self, ['blueprint', 'modules'])
+        import_modules(get_words(self.options.get('modules')))
+        expressions = get_expressions(
+            self, get_words(self.options.get('expressions')),
+            ['blueprint', 'modules', 'expressions']
+        )
+
         for item in self.previous:
             try:
                 for name, expression in expressions:
@@ -122,7 +130,12 @@ class ExpressionFilterAnd(Blueprint):
 class ExpressionFilterOr(Blueprint):
     """Filter items by expressions (OR)"""
     def __iter__(self):
-        expressions = get_expressions(self, ['blueprint', 'modules'])
+        import_modules(get_words(self.options.get('modules')))
+        expressions = get_expressions(
+            self, get_words(self.options.get('expressions')),
+            ['blueprint', 'modules', 'expressions']
+        )
+
         for item in self.previous:
             for name, expression in expressions:
                 if bool(expression(item)):
@@ -134,10 +147,10 @@ class ExpressionInterval(ConditionalBlueprint):
     """Perform standalone expressions by defined interval"""
     def __iter__(self):
         import_modules(get_words(self.options.get('modules')))
-
         expressions = get_expressions(
-            self, ['blueprint', 'modules', 'condition', 'interval'])
-
+            self, get_words(self.options.get('expressions')),
+            ['blueprint', 'modules', 'expressions', 'condition', 'interval']
+        )
         assert expressions, 'No expressions defined'
 
         counter = interval = int(self.options.get('interval', '1'))

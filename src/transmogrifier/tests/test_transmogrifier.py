@@ -96,11 +96,13 @@ class OptionSubstitutionTests(unittest.TestCase):
 
     def testSimpleSub(self):
         opts = self._loadOptions(dict(
-            spam=dict(monty='python'),
-            eggs=dict(foo='${spam:monty}'),
+            spam=dict(monty='python', python='${:monty}'),
+            eggs=dict(foo='${spam:monty}', bar='${:foo}'),
         ))
         self.assertEqual(opts['spam']['monty'], 'python')
+        self.assertEqual(opts['spam']['python'], 'python')
         self.assertEqual(opts['eggs']['foo'], 'python')
+        self.assertEqual(opts['eggs']['bar'], 'python')
 
     def testSkipTALESStringExpressions(self):
         opts = self._loadOptions(
@@ -117,11 +119,15 @@ class OptionSubstitutionTests(unittest.TestCase):
                 empty=dict(),
                 spam=dict(monty='${eggs:foo}'),
                 eggs=dict(foo='${spam:monty}'),
+                monty=dict(python='${:monty}', monty='${:python}'),
+                foo=dict(bar='${:foobar}')
             ))
         self.assertRaises(ValueError, operator.itemgetter('spam'), opts)
+        self.assertRaises(ValueError, operator.itemgetter('monty'), opts)
         self.assertRaises(KeyError, operator.itemgetter('do_not_exist'), opts)
-        self.assertRaises(KeyError, operator.itemgetter('do_not_exist'),
-                          opts['empty'])
+        self.assertRaises(KeyError,
+                          operator.itemgetter('do_not_exist'), opts['empty'])
+        self.assertRaises(KeyError, operator.itemgetter('foo'), opts)
 
 
 class InclusionManipulationTests(unittest.TestCase):

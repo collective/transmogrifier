@@ -44,7 +44,7 @@ class Options(UserDict):
         return value
 
     _template_split = re.compile('([$]{[^}]*})').split
-    _valid = re.compile('\${[-a-zA-Z0-9 ._]+:[-a-zA-Z0-9 ._]+}$').match
+    _valid = re.compile('\${[-a-zA-Z0-9 ._]*:[-a-zA-Z0-9 ._]+}$').match
     _tales = re.compile('^\s*string:', re.MULTILINE).match
 
     def _sub(self, template, seen):
@@ -59,6 +59,8 @@ class Options(UserDict):
                 raise ValueError('Not a valid substitution %s.' % ref)
 
             names = tuple(ref[2:-1].split(':'))
+            if not names[0]:
+                names = seen[0][0], names[1]
             value = self.transmogrifier[names[0]].get(names[1], None, seen)
             if value is None:
                 raise KeyError('Referenced option does not exist:', *names)

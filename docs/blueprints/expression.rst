@@ -129,3 +129,41 @@ If expression does not return a mapping, the result is wrapped into a mapping.
     logger INFO
       {'id': 2}
     >>> logger.clear()
+
+    >>> e = """
+    ... [transmogrifier]
+    ... pipeline =
+    ...     source
+    ...     setter
+    ...     transform
+    ...     logger
+    ...
+    ... [source]
+    ... blueprint = transmogrifier.from
+    ... expression = [{'id': i} for i in range(3)]
+    ...
+    ... [setter]
+    ... blueprint = transmogrifier.set
+    ... title = string:item-${item['id']}
+    ...
+    ... [transform]
+    ... blueprint = transmogrifier.transform
+    ... expressions = pop_item
+    ... pop_item = item.pop('${:pop_item_id}')
+    ... pop_item_id  = title
+    ...
+    ... [logger]
+    ... blueprint = transmogrifier.logger
+    ... name = logger
+    ... level = INFO
+    ... """
+    >>> registerConfiguration('transmogrifier.tests.expression.e', e)
+    >>> Transmogrifier('transmogrifier.tests.expression.e')
+    >>> print(logger)
+    logger INFO
+      {'id': 0}
+    logger INFO
+      {'id': 1}
+    logger INFO
+      {'id': 2}
+    >>> logger.clear()
