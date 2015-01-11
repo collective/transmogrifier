@@ -22,7 +22,8 @@ class Buffer(object):
 
 class Pipeline(ConditionalBlueprint):
     def __iter__(self):
-        sections = [s.strip() for s in self.options['pipeline'].splitlines()]
+        sections = [s.strip() for s in
+                    self.options.get('pipeline', '').splitlines()]
         buffer = Buffer()
         pipeline = []
 

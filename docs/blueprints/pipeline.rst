@@ -97,7 +97,6 @@ Pipeline section
     ...
     ... [placeholder]
     ... blueprint = transmogrifier.pipeline
-    ... pipeline =
     ...
     ... [logger]
     ... blueprint = transmogrifier.logger
