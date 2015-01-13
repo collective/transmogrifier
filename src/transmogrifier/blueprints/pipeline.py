@@ -13,8 +13,8 @@ class Buffer(object):
     def __init__(self):
         self.data = []
 
-    def push(self, item):
-        self.data.append(item)
+    def insert(self, item):
+        self.data.insert(0, item)
 
     def __iter__(self):
         while self.data:
@@ -45,18 +45,18 @@ class Pipeline(ConditionalBlueprint):
                 raise ValueError('Blueprint %s for section %s did not return '
                                  'an ISection' % (blueprint_id, section_id))
 
-        iterated = False
+        pipeline_iterator = iter(pipeline)
 
         for item in self.previous:
             if pipeline and self.condition(item):
-                items.push(item)
-                for sub_item in iter(pipeline):
-                    yield sub_item
-                iterated = True
+                items.insert(item)
+                try:
+                    yield next(pipeline_iterator)
+                except StopIteration:
+                    # Pipeline might filter item and requires reboot
+                    pipeline_iterator = iter(pipeline)
             else:
                 yield item
 
-        # Executed non-iterated sections to support source blueprints
-        if not iterated:
-            for item in iter(pipeline):
-                yield item
+        for item in pipeline_iterator:
+            yield item
