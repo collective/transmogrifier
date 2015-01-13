@@ -27,11 +27,9 @@ class SectionWrapper(object):
 
 
 class Pipeline(ConditionalBlueprint):
-    def __iter__(self):
-        sections = get_lines(self.options.get('pipeline'))
-        wrapper = SectionWrapper(self)
-        pipeline = []
 
+    def create_pipeline(self, sections, wrapper):
+        pipeline = []
         for section_id in sections:
             if not section_id or section_id == self.name:
                 continue
@@ -50,7 +48,12 @@ class Pipeline(ConditionalBlueprint):
                 raise ValueError('Blueprint %s for section %s did not return '
                                  'an ISection' % (blueprint_id, section_id))
 
-        pipeline = iter(pipeline)
+        return iter(pipeline)
+
+    def __iter__(self):
+        sections = get_lines(self.options.get('pipeline'))
+        wrapper = SectionWrapper(self)
+        pipeline = self.create_pipeline(sections, wrapper)
 
         try:
             while True:
