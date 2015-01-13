@@ -52,4 +52,3 @@ class Pipeline(ConditionalBlueprint):
                     yield sub_item
             else:
                 yield item
-

@@ -14,6 +14,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 from contextlib import contextmanager
 from operator import add
+from functools import reduce
 
 import os
 import importlib
