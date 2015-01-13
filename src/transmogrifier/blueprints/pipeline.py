@@ -13,8 +13,8 @@ class Buffer(object):
     def __init__(self):
         self.data = []
 
-    def push(self, item):
-        self.data.append(item)
+    def insert(self, item):
+        self.data.insert(0, item)
 
     def __iter__(self):
         while self.data:
@@ -49,7 +49,7 @@ class Pipeline(ConditionalBlueprint):
 
         for item in self.previous:
             if pipeline and self.condition(item):
-                items.push(item)
+                items.insert(item)
                 for sub_item in iter(pipeline):
                     yield sub_item
                 iterated = True
