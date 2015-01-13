@@ -13,6 +13,7 @@ Usage: transmogrify <pipelines_and_overrides>...
 from __future__ import unicode_literals
 from __future__ import print_function
 from contextlib import contextmanager
+from operator import add
 
 import os
 import importlib
@@ -172,9 +173,11 @@ def resolve(pipeline):
     resolved.add_section('transmogrifier')
     for key in sorted(config.get('transmogrifier')):
         resolved.set('transmogrifier', key, config['transmogrifier'][key])
-    sections = get_lines(resolved.get('transmogrifier', 'pipeline'))
+    sections = reduce(
+        add, [get_lines(config.get(section).get('pipeline') or '')
+              for section in config.keys()])
     for section in sorted(config.keys()):
-        if section not in sections:
+        if section not in sections or section in resolved.sections():
             continue
         resolved.add_section(section)
         for key in sorted(config.get(section)):
