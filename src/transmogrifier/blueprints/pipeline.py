@@ -8,23 +8,28 @@ from transmogrifier.interfaces import ISectionBlueprint
 from transmogrifier.utils import get_lines
 
 
-class Buffer(object):
+class SectionWrapper(object):
 
-    def __init__(self):
-        self.data = []
+    def __init__(self, section):
+        self.section = section
+        self.skipped = []
 
-    def insert(self, item):
-        self.data.insert(0, item)
+    def purge(self):
+        while self.skipped:
+            yield self.skipped.pop()
 
     def __iter__(self):
-        while self.data:
-            yield self.data.pop()
+        for item in self.section.previous:
+            if self.section.condition(item):
+                yield item
+            else:
+                self.skipped.insert(0, item)
 
 
 class Pipeline(ConditionalBlueprint):
     def __iter__(self):
         sections = get_lines(self.options.get('pipeline'))
-        items = Buffer()
+        wrapper = SectionWrapper(self)
         pipeline = []
 
         for section_id in sections:
@@ -36,7 +41,7 @@ class Pipeline(ConditionalBlueprint):
 
             if not pipeline:
                 pipeline = blueprint(self.transmogrifier, section_id,
-                                     self.transmogrifier[section_id], items)
+                                     self.transmogrifier[section_id], wrapper)
             else:
                 pipeline = blueprint(self.transmogrifier, section_id,
                                      self.transmogrifier[section_id], pipeline)
@@ -45,18 +50,17 @@ class Pipeline(ConditionalBlueprint):
                 raise ValueError('Blueprint %s for section %s did not return '
                                  'an ISection' % (blueprint_id, section_id))
 
-        iterated = False
+        pipeline = iter(pipeline)
+
+        try:
+            while True:
+                item = next(pipeline)
+                for skipped in wrapper.purge():
+                    yield skipped
+                yield item
+        except StopIteration:
+            for skipped in wrapper.purge():
+                yield skipped
 
         for item in self.previous:
-            if pipeline and self.condition(item):
-                items.insert(item)
-                for sub_item in iter(pipeline):
-                    yield sub_item
-                iterated = True
-            else:
-                yield item
-
-        # Executed non-iterated sections to support source blueprints
-        if not iterated:
-            for item in iter(pipeline):
-                yield item
+            yield item
