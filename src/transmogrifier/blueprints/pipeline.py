@@ -24,7 +24,7 @@ class Buffer(object):
 class Pipeline(ConditionalBlueprint):
     def __iter__(self):
         sections = get_lines(self.options.get('pipeline'))
-        buffer = Buffer()
+        items = Buffer()
         pipeline = []
 
         for section_id in sections:
@@ -36,7 +36,7 @@ class Pipeline(ConditionalBlueprint):
 
             if not pipeline:
                 pipeline = blueprint(self.transmogrifier, section_id,
-                                     self.transmogrifier[section_id], buffer)
+                                     self.transmogrifier[section_id], items)
             else:
                 pipeline = blueprint(self.transmogrifier, section_id,
                                      self.transmogrifier[section_id], pipeline)
@@ -45,10 +45,18 @@ class Pipeline(ConditionalBlueprint):
                 raise ValueError('Blueprint %s for section %s did not return '
                                  'an ISection' % (blueprint_id, section_id))
 
+        iterated = False
+
         for item in self.previous:
             if pipeline and self.condition(item):
-                buffer.push(item)
+                items.push(item)
                 for sub_item in iter(pipeline):
                     yield sub_item
+                iterated = True
             else:
+                yield item
+
+        # Executed non-iterated sections to support source blueprints
+        if not iterated:
+            for item in iter(pipeline):
                 yield item

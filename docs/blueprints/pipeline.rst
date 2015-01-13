@@ -114,3 +114,36 @@ Pipeline section
     logger INFO
       item-02
     >>> logger.clear()
+
+    >>> d = """
+    ... [transmogrifier]
+    ... pipeline =
+    ...     pipeline
+    ...     logger
+    ...
+    ... [source]
+    ... blueprint = transmogrifier.from
+    ... expression = [{'id': 'item-{0:02d}'.format(i)}
+    ...               for i in range(3)]
+    ...
+    ... [pipeline]
+    ... blueprint = transmogrifier.pipeline
+    ... pipeline =
+    ...     source
+    ...
+    ... [logger]
+    ... blueprint = transmogrifier.logger
+    ... name = logger
+    ... level = INFO
+    ... key = id
+    ... """
+    >>> registerConfiguration('transmogrifier.tests.pipeline.d', d)
+    >>> Transmogrifier('transmogrifier.tests.pipeline.d')
+    >>> print(logger)
+    logger INFO
+      item-00
+    logger INFO
+      item-01
+    logger INFO
+      item-02
+    >>> logger.clear()
