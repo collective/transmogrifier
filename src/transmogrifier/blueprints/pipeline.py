@@ -51,8 +51,8 @@ class Pipeline(ConditionalBlueprint):
         return iter(pipeline)
 
     def __iter__(self):
-        sections = get_lines(self.options.get('pipeline'))
         wrapper = SectionWrapper(self)
+        sections = get_lines(self.options.get('pipeline'))
         pipeline = self.create_pipeline(sections, wrapper)
 
         try:
