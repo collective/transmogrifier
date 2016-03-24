@@ -5,6 +5,7 @@ from io import StringIO
 from io import BytesIO
 from csv import DictReader
 from csv import DictWriter
+from email.message import Message
 from operator import methodcaller
 import os
 import sys
@@ -67,11 +68,20 @@ class CodecTransform(ConditionalBlueprint):
                 for name, value in transforms.items():
                     if name not in item:
                         continue
+
+                    key_value = item[name]
+
                     if value[0] != 'unicode':
-                        if hasattr(item[name], 'decode'):
-                            item[name] = item[name].decode(value[0])
+                        if hasattr(key_value, 'decode'):
+                           key_value = key_value.decode(value[0])
                     if value[1] != 'unicode':
-                        item[name] = item[name].encode(value[1])
+                        key_value = key_value.encode(value[1])
+
+                    if isinstance(item, Message):
+                        item.replace_header(name, key_value)
+                    else:
+                        item[name] = key_value
+                        
             yield item
 
 
