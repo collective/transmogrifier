@@ -2,33 +2,18 @@
 from __future__ import unicode_literals
 from zope.component import getUtility
 
-from transmogrifier.blueprints import ConditionalBlueprint
+from transmogrifier.blueprints import Blueprint
 from transmogrifier.interfaces import ISection
 from transmogrifier.interfaces import ISectionBlueprint
 from transmogrifier.utils import get_lines
 
 
-class SectionWrapper(object):
+class Pipeline(Blueprint):
+    """Pipeline blueprint works as composition blueprint or (as empty)
+    as an extension slot for re-usable pipelines
+    """
 
-    def __init__(self, section):
-        self.section = section
-        self.skipped = []
-
-    def purge(self):
-        while self.skipped:
-            yield self.skipped.pop()
-
-    def __iter__(self):
-        for item in self.section.previous:
-            if self.section.condition(item):
-                yield item
-            else:
-                self.skipped.insert(0, item)
-
-
-class Pipeline(ConditionalBlueprint):
-
-    def create_pipeline(self, sections, wrapper):
+    def create_pipeline(self, sections, previous):
         pipeline = []
         for section_id in sections:
             if not section_id or section_id == self.name:
@@ -39,7 +24,7 @@ class Pipeline(ConditionalBlueprint):
 
             if not pipeline:
                 pipeline = blueprint(self.transmogrifier, section_id,
-                                     self.transmogrifier[section_id], wrapper)
+                                     self.transmogrifier[section_id], previous)
             else:
                 pipeline = blueprint(self.transmogrifier, section_id,
                                      self.transmogrifier[section_id], pipeline)
@@ -51,19 +36,18 @@ class Pipeline(ConditionalBlueprint):
         return iter(pipeline)
 
     def __iter__(self):
-        wrapper = SectionWrapper(self)
+        assert not self.options.get('condition'), \
+            'Support for conditional pipelines has been removed'
+
+        # NOTE: Conditional blueprints added unnecessary complexity and
+        # introduced memory issues (all non-matching items had to cached in
+        # memory up to the next matching item), and broke the transmogrifier's
+        # promise of serial processing.
+
         sections = get_lines(self.options.get('pipeline'))
-        pipeline = self.create_pipeline(sections, wrapper)
-
-        try:
-            while True:
-                item = next(pipeline)
-                for skipped in wrapper.purge():
-                    yield skipped
-                yield item
-        except StopIteration:
-            for skipped in wrapper.purge():
-                yield skipped
-
-        for item in self.previous:
+        if sections:
+            previous = self.create_pipeline(sections, self.previous)
+        else:
+            previous = self.previous
+        for item in previous:
             yield item
