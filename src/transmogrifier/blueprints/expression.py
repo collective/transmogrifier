@@ -33,8 +33,13 @@ def unwrap(item):
 
 def get_expressions(blueprint, whitelist=None, blacklist=None):
     expressions = {}
-    in_whitelist = lambda x: not whitelist or x in whitelist
-    in_blacklist = lambda x: blacklist and x in blacklist
+
+    def in_whitelist(x):
+        return not whitelist or x in whitelist
+
+    def in_blacklist(x):
+        return blacklist and x in blacklist
+
     for name, value in blueprint.options.items():
         if in_blacklist(name) or not in_whitelist(name):
             continue

@@ -14,7 +14,8 @@ from transmogrifier.registry import configuration_registry
 try:
     from zope.testing.cleanup import cleanUp
 except ImportError:
-    cleanUp = lambda: None
+    def cleanUp():
+        pass
 
 
 # noinspection PyPep8Naming
