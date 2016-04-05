@@ -48,7 +48,6 @@ Pipeline section
     ...
     ... [transform-pipeline]
     ... blueprint = transmogrifier.pipeline
-    ... condition = item['id'] == 'item-01'
     ... pipeline =
     ...     transform-upper
     ...     transform-concat
@@ -76,11 +75,11 @@ Pipeline section
     >>> Transmogrifier('transmogrifier.tests.pipeline.b')
     >>> print(logger)
     logger INFO
-      item-00
+      ITEM-00 ITEM-00
     logger INFO
       ITEM-01 ITEM-01
     logger INFO
-      item-02
+      ITEM-02 ITEM-02
     >>> logger.clear()
 
     >>> c = """

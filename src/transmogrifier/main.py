@@ -232,8 +232,8 @@ Available pipelines
         try:
             configuration_registry.getConfiguration(pipeline)
         except KeyError:
-            path = (os.path.isabs(pipeline) and pipeline
-                    or os.path.join(os.getcwd(), pipeline))
+            path = (os.path.isabs(pipeline) and pipeline or
+                    os.path.join(os.getcwd(), pipeline))
             if os.path.isfile(path):
                 configuration_registry.registerConfiguration(
                     name=pipeline, title=pipeline,
@@ -261,8 +261,8 @@ Available pipelines
 
     # Transmogrify
     for pipeline in get_pipelines(arguments):
-        path = (os.path.isabs(pipeline) and pipeline
-                or os.path.join(os.getcwd(), pipeline))
+        path = (os.path.isabs(pipeline) and pipeline or
+                os.path.join(os.getcwd(), pipeline))
         if os.path.isfile(path):
             configuration_registry.registerConfiguration(
                 name=pipeline, title=pipeline,
