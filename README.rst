@@ -1,8 +1,8 @@
 Transmogrifier
 ==============
 
-.. image:: https://secure.travis-ci.org/datakurre/transmogrifier.png
-   :target: http://travis-ci.org/datakurre/transmogrifier
+.. image:: https://secure.travis-ci.org/collective/transmogrifier.png
+   :target: http://travis-ci.org/collective/transmogrifier
 
 Transmogrifier provides support for building pipelines that turn one thing
 into another. Specifically, transmogrifier pipelines are used to convert and
