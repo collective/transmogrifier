@@ -39,3 +39,13 @@ class ConditionalBlueprint(Blueprint):
 
     def __iter__(self):
         raise NotImplementedError('__iter__')
+
+
+@provider(ISectionBlueprint)
+@implementer(ISection)
+class PassBlueprint(ConditionalBlueprint):
+
+    def __iter__(self):
+        for item in self.previous:
+            if self.condition(item):
+                yield item
