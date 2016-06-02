@@ -253,7 +253,7 @@ Available pipelines
     # Initialize optional context
     context_path = arguments.get('--context')
     if context_path is None:
-        context = dict()
+        context = getSite() or dict()
     else:
         context_module_path, context_class_name = context_path.rsplit('.', 1)
         context_module = importlib.import_module(context_module_path)
