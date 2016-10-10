@@ -222,7 +222,7 @@ Available pipelines
 {1:s}
 """.format('\n'.join(sorted(blueprints.keys())),
            '\n'.join(['{0:s}\n    {1:s}: {2:s}'.format(
-                      p['id'], p['title'], p['description'])
+                      p['id'], p['title'], p['description']).strip('\n: ')
                       for p in pipelines])))
         return
 
