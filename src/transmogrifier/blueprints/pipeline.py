@@ -19,15 +19,20 @@ class Pipeline(Blueprint):
             if not section_id or section_id == self.name:
                 continue
 
-            blueprint_id = self.transmogrifier[section_id]['blueprint']
+            try:
+                section = self.transmogrifier[section_id]
+            except KeyError:
+                section = {'blueprint': section_id}
+
+            blueprint_id = section['blueprint']
             blueprint = getUtility(ISectionBlueprint, blueprint_id)
 
             if not pipeline:
-                pipeline = blueprint(self.transmogrifier, section_id,
-                                     self.transmogrifier[section_id], previous)
+                pipeline = blueprint(
+                    self.transmogrifier, section_id, section, previous)
             else:
-                pipeline = blueprint(self.transmogrifier, section_id,
-                                     self.transmogrifier[section_id], pipeline)
+                pipeline = blueprint(
+                    self.transmogrifier, section_id, section, pipeline)
 
             if not ISection.providedBy(pipeline):
                 raise ValueError('Blueprint %s for section %s did not return '
