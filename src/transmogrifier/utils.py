@@ -23,6 +23,10 @@ def pformat_msg(obj):
     return fp.getvalue()
 
 
+def to_boolean(value):
+    return str(value).lower() in ['1', 'true', 'on', 'yes', 'enabled']
+
+
 def is_mapping(item):
     """Validate that item can acts as a mapping
     """
@@ -109,7 +113,7 @@ def defaultKeys(blueprint, section, key=None):
 def defaultMatcher(options, option_name, section, key=None, extra=()):
     """Create a Matcher from an option, with a defaultKeys fallback
 
-    If optionname is present in options, that option is used to create a
+    If option_name is present in options, that option is used to create a
     Matcher, with the assumption the option holds newline-separated keys.
 
     Otherwise, defaultKeys is called to generate a default set of keys

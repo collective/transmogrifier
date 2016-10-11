@@ -81,8 +81,9 @@ class Expression(object):
         self.logger = getLogger(logger_base + '.' + name)
 
     def __call__(self, item, **extras):
-        context = {'item': item}
+        context = {}
         context.update(extras)
+        context.update({'item': item})
 
         m = match_prefix(self.expression)
         if m is not None:

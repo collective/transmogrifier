@@ -91,9 +91,10 @@ class ExpressionSetter(ConditionalBlueprint):
         assert expressions, 'No expressions defined'
 
         for item in self.previous:
-            if self.condition(item) and is_mapping(item):
+            extras = is_mapping(item) and item or {}
+            if self.condition(item, **extras) and is_mapping(item):
                 for name, expression in expressions:
-                    item[name] = expression(item)
+                    item[name] = expression(item, **extras)
             yield item
 
 
@@ -108,9 +109,10 @@ class ExpressionTransform(ConditionalBlueprint):
         assert expressions, 'No expressions defined'
 
         for item in self.previous:
-            if self.condition(item):
+            extras = is_mapping(item) and item or {}
+            if self.condition(item, **extras):
                 for name, expression in expressions:
-                    expression(item)
+                    expression(item, **extras)
             yield item
 
 
@@ -124,9 +126,10 @@ class ExpressionFilterAnd(Blueprint):
         )
 
         for item in self.previous:
+            extras = is_mapping(item) and item or {}
             try:
                 for name, expression in expressions:
-                    assert bool(expression(item)), 'Condition failed'
+                    assert bool(expression(item, **extras)), 'Condition failed'
                 yield item
             except AssertionError:
                 pass
@@ -142,8 +145,9 @@ class ExpressionFilterOr(Blueprint):
         )
 
         for item in self.previous:
+            extras = is_mapping(item) and item or {}
             for name, expression in expressions:
-                if bool(expression(item)):
+                if bool(expression(item, **extras)):
                     yield item
                     break
 

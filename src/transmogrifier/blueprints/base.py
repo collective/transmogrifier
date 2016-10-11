@@ -43,9 +43,8 @@ class ConditionalBlueprint(Blueprint):
 
 @provider(ISectionBlueprint)
 @implementer(ISection)
-class PassBlueprint(ConditionalBlueprint):
+class PassBlueprint(Blueprint):
 
     def __iter__(self):
         for item in self.previous:
-            if self.condition(item):
-                yield item
+            yield item
