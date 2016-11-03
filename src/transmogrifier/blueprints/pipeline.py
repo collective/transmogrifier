@@ -24,6 +24,10 @@ class Pipeline(Blueprint):
             except KeyError:
                 if section_id.startswith('blueprint='):
                     section = {'blueprint': section_id[len('blueprint='):]}
+                    section.update(dict([
+                        (key, value) for key, value in self.options.items()
+                        if key not in ['blueprint', 'pipeline']
+                    ]))
                 else:
                     raise
 
