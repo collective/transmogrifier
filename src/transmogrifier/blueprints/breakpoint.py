@@ -5,6 +5,7 @@ import sys
 import pdb
 
 from transmogrifier.blueprints import ConditionalBlueprint
+from transmogrifier.utils import is_mapping
 
 
 class Breakpoint(ConditionalBlueprint):
@@ -12,7 +13,8 @@ class Breakpoint(ConditionalBlueprint):
 
     def __iter__(self):
         for item in self.previous:
-            if self.condition(item):
+            extras = is_mapping(item) and item or {}
+            if self.condition(item, **extras):
                 # noinspection PyProtectedMember
                 self.pdb.set_trace(sys._getframe())  # Break!
             yield item
