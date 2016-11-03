@@ -22,7 +22,10 @@ class Pipeline(Blueprint):
             try:
                 section = self.transmogrifier[section_id]
             except KeyError:
-                section = {'blueprint': section_id}
+                if section_id.startswith('blueprint='):
+                    section = {'blueprint': section_id[len('blueprint='):]}
+                else:
+                    raise
 
             blueprint_id = section['blueprint']
             blueprint = getUtility(ISectionBlueprint, blueprint_id)
