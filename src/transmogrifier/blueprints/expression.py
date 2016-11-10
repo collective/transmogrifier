@@ -176,3 +176,21 @@ class ExpressionInterval(ConditionalBlueprint):
         if counter != interval:
             for name, expression in expressions:
                 expression(None)
+
+
+class ExpressionFinally(Blueprint):
+    """Perform standalone expressions at the end, also on exception"""
+    def __iter__(self):
+        import_modules(get_words(self.options.get('modules')))
+        expressions = get_expressions(
+            self, get_words(self.options.get('expressions')),
+            ['blueprint', 'modules', 'expressions']
+        )
+        assert expressions, 'No expressions defined'
+
+        try:
+            for item in self.previous:
+                yield item
+        finally:
+            for name, expression in expressions:
+                expression(None)

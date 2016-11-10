@@ -61,6 +61,11 @@
       />
 
   <transmogrifier:blueprint
+      component="transmogrifier.blueprints.expression.ExpressionFinally"
+      name="transmogrifier.finally"
+      />
+
+  <transmogrifier:blueprint
       component="transmogrifier.blueprints.data.DelTransform"
       name="transmogrifier.del"
       />
