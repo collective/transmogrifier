@@ -205,7 +205,13 @@ def load_config(configuration_id, seen=None, **overrides):  # flake8: noqa
     seen.pop()
 
     for section, options in iteritems(overrides):
-        result.setdefault(section, {}).update(options)
+        assert section in result, \
+            'Overrides include non-existing section {0:s}'.format(section)
+        for key, value in iteritems(options):
+            assert key in result[section], \
+                'Overrides include non-existing key {0:s}:{1:s}'.format(
+                    section, key)
+            result[section][key] = value
 
     return result
 
