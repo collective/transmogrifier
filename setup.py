@@ -24,8 +24,9 @@ setup(
     install_requires=[
         'setuptools',
         'six',
-        'future',
+        'configparser',
         'docopt',
+        'future',
         'chameleon',
         'zope.interface',
         'zope.component',
