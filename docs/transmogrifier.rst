@@ -80,7 +80,7 @@ Here is a simple blueprint, in the form of a class definition:
     ... class ExampleTransform(Blueprint):
     ...     def __iter__(self):
     ...         for item in self.previous:
-    ...             item['exampletransformname'] = self.name
+    ...             item['exampletransformname'] = str(self.name)
     ...             yield item
     ...
     >>> from zope.component import provideUtility

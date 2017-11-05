@@ -5,13 +5,14 @@ python:
 - 3.3
 - 3.4
 - 3.5
+- 3.6
 sudo: false
 cache:
   directories:
   - eggs
 install:
-- python bootstrap.py
-- bin/buildout -N -t 3
+- pip install -U setuptools zc.buildout==2.5.2
+- buildout -N -t 3 install test code-analysis
 script:
 - bin/test
 - bin/code-analysis
