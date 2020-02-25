@@ -156,7 +156,7 @@ class Matcher(object):
                 expr = expr.split(':', 1)[1]
                 expr = re.compile(expr).match
             else:
-                expr = lambda x, y=expr: x == y
+                expr = lambda x, y=expr: x == y  # noqa
             self.expressions.append(expr)
 
     def __call__(self, *values):

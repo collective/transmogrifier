@@ -5,24 +5,42 @@ from zope.component.zcml import IUtilityDirective
 from zope.component.zcml import utility
 from zope.configuration.fields import MessageID
 from zope.configuration.fields import Path
-from zope.configuration.fields import PythonIdentifier
 from zope.interface import Interface
 
 from transmogrifier.interfaces import ISectionBlueprint
 from transmogrifier.interfaces import ISection
 from transmogrifier.registry import configuration_registry
 
+import six
+import pkg_resources
+
+ZOPE_SCHEMA = pkg_resources.get_distribution("zope.schema").version
+
+
+if ZOPE_SCHEMA >= "4.6.0":
+    from zope.configuration.fields import DottedName
+else:
+    from zope.configuration.fields import PythonIdentifier
+
 
 class IPipelineDirective(Interface):
     """Register pipeline configurations with the global registry.
     """
 
-    name = PythonIdentifier(
-        title='Name',
-        description="If not specified 'default' is used.",
-        default='default',
-        required=False
-    )
+    if ZOPE_SCHEMA >= "4.6.0":
+        name = DottedName(
+            title='Name',
+            description="If not specified 'default' is used.",
+            default=six.PY2 and b'default' or 'default',
+            required=False
+        )
+    else:
+        name = PythonIdentifier(
+            title='Name',
+            description="If not specified 'default' is used.",
+            default='default',
+            required=False
+        )
 
     title = MessageID(
         title='Title',

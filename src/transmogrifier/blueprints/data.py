@@ -73,7 +73,7 @@ class CodecTransform(ConditionalBlueprint):
 
                     if value[0] != 'unicode':
                         if hasattr(key_value, 'decode'):
-                           key_value = key_value.decode(value[0])
+                            key_value = key_value.decode(value[0])
                     if value[1] != 'unicode':
                         key_value = key_value.encode(value[1])
 
@@ -81,7 +81,7 @@ class CodecTransform(ConditionalBlueprint):
                         item.replace_header(name, key_value)
                     else:
                         item[name] = key_value
-                        
+
             yield item
 
 

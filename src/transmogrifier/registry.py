@@ -30,13 +30,14 @@ class ConfigurationRegistry(object):
     def listConfigurationIds(self):
         return tuple(self._config_ids)
 
+
 configuration_registry = ConfigurationRegistry()
 
 
 try:
     from zope.testing.cleanup import addCleanUp
 except ImportError:
-    addCleanUp = lambda x: None
+    addCleanUp = lambda x: None  # noqa
 else:
     addCleanUp(configuration_registry.clear)
     del addCleanUp
@@ -45,6 +46,6 @@ else:
 # BBB: Support collective.transmogrifier
 try:
     pkg_resources.get_distribution('collective.transmogrifier')
-    from collective.transmogrifier.transmogrifier import configuration_registry  # flake8: noqa
+    from collective.transmogrifier.transmogrifier import configuration_registry  # noqa
 except pkg_resources.DistributionNotFound:
     pass

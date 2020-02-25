@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-
-from transmogrifier.adapters import Transmogrifier  # flake8: noqa
+from transmogrifier.adapters import Transmogrifier  # noqa
 
 
 def __main__():

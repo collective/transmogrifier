@@ -43,9 +43,9 @@ class Options(UserDict):
         self.data[option] = value
         return value
 
-    _template_split = re.compile('([$]{[^}]*})').split
-    _valid = re.compile('\${[-a-zA-Z0-9 ._]*:[-a-zA-Z0-9 ._]+}$').match
-    _tales = re.compile('^\s*string:', re.MULTILINE).match
+    _template_split = re.compile(r'([$]{[^}]*})').split
+    _valid = re.compile(r'\${[-a-zA-Z0-9 ._]*:[-a-zA-Z0-9 ._]+}$').match
+    _tales = re.compile(r'^\s*string:', re.MULTILINE).match
 
     def _sub(self, template, seen):
         parts = self._template_split(template)

@@ -57,8 +57,8 @@ class ISection(zope.interface.Interface):
 # BBB: Support collective.transmogrifier
 try:
     pkg_resources.get_distribution('collective.transmogrifier')
-    from collective.transmogrifier.interfaces import ITransmogrifier  # flake8: noqa
-    from collective.transmogrifier.interfaces import ISectionBlueprint  # flake8: noqa
-    from collective.transmogrifier.interfaces import ISection  # flake8: noqa
+    from collective.transmogrifier.interfaces import ITransmogrifier  # noqa
+    from collective.transmogrifier.interfaces import ISectionBlueprint  # noqa
+    from collective.transmogrifier.interfaces import ISection  # noqa
 except pkg_resources.DistributionNotFound:
     pass
